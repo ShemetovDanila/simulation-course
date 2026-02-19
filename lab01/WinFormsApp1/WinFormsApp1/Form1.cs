@@ -21,7 +21,6 @@ namespace WinFormsApp1
             results.AllowUserToAddRows = false;
             results.ReadOnly = true;
             results.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            results.MultiSelect = false;
             results.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             if (results.Columns.Count == 0)
@@ -129,8 +128,6 @@ namespace WinFormsApp1
                     v.ToString("F4")
                 );
 
-                results.FirstDisplayedScrollingRowIndex = rowIndex;
-
                 return;
             }
         }
@@ -165,7 +162,6 @@ namespace WinFormsApp1
             chart1.Series.Clear();
             results.Rows.Clear();
             runNumber = 0;
-            war.Text = "";
         }
 
         private void button2_Click_1(object sender, EventArgs e)
@@ -241,8 +237,6 @@ namespace WinFormsApp1
                     ymax.ToString("F4"),
                     currentV.ToString("F4")
                 );
-
-                results.FirstDisplayedScrollingRowIndex = rowIndex;
             }
         }
 

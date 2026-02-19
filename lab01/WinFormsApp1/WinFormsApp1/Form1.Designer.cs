@@ -34,6 +34,7 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             groupBox1 = new GroupBox();
+            war = new Label();
             button2 = new Button();
             clear = new Button();
             label4 = new Label();
@@ -51,7 +52,6 @@
             button1 = new Button();
             timer1 = new System.Windows.Forms.Timer(components);
             results = new DataGridView();
-            war = new Label();
             ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)results).BeginInit();
@@ -106,11 +106,19 @@
             groupBox1.TabStop = false;
             groupBox1.Enter += groupBox1_Enter;
             // 
+            // war
+            // 
+            war.AutoSize = true;
+            war.Location = new Point(123, 137);
+            war.Name = "war";
+            war.Size = new Size(0, 20);
+            war.TabIndex = 15;
+            // 
             // button2
             // 
             button2.Location = new Point(810, 12);
             button2.Name = "button2";
-            button2.Size = new Size(100, 153);
+            button2.Size = new Size(100, 151);
             button2.TabIndex = 14;
             button2.Text = "ЗАПУСК! (сразу 5 вариантов)";
             button2.UseVisualStyleBackColor = true;
@@ -120,7 +128,7 @@
             // 
             clear.Location = new Point(939, 10);
             clear.Name = "clear";
-            clear.Size = new Size(149, 147);
+            clear.Size = new Size(149, 153);
             clear.TabIndex = 13;
             clear.Text = "Очистить график и таблицу";
             clear.UseVisualStyleBackColor = true;
@@ -129,104 +137,104 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(301, 108);
+            label4.Location = new Point(304, 109);
             label4.Name = "label4";
-            label4.Size = new Size(37, 20);
+            label4.Size = new Size(58, 20);
             label4.TabIndex = 12;
-            label4.Text = "Шаг";
+            label4.Text = "Шаг (с)";
             // 
             // textBoxSt
             // 
-            textBoxSt.Location = new Point(340, 105);
+            textBoxSt.Location = new Point(364, 105);
             textBoxSt.Name = "textBoxSt";
-            textBoxSt.Size = new Size(125, 27);
+            textBoxSt.Size = new Size(111, 27);
             textBoxSt.TabIndex = 11;
             textBoxSt.Text = "0,01";
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(265, 70);
+            label5.Location = new Point(246, 71);
             label5.Name = "label5";
-            label5.Size = new Size(73, 20);
+            label5.Size = new Size(116, 20);
             label5.TabIndex = 10;
-            label5.Text = "Площадь";
+            label5.Text = "Площадь (м^2)";
             // 
             // textBoxPl
             // 
-            textBoxPl.Location = new Point(340, 67);
+            textBoxPl.Location = new Point(364, 67);
             textBoxPl.Name = "textBoxPl";
-            textBoxPl.Size = new Size(125, 27);
+            textBoxPl.Size = new Size(111, 27);
             textBoxPl.TabIndex = 9;
             textBoxPl.Text = "0,07";
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(286, 35);
+            label6.Location = new Point(283, 36);
             label6.Name = "label6";
-            label6.Size = new Size(52, 20);
+            label6.Size = new Size(79, 20);
             label6.TabIndex = 8;
-            label6.Text = "Масса";
+            label6.Text = "Масса (кг)";
             // 
             // textBoxM
             // 
-            textBoxM.Location = new Point(340, 32);
+            textBoxM.Location = new Point(364, 32);
             textBoxM.Name = "textBoxM";
-            textBoxM.Size = new Size(125, 27);
+            textBoxM.Size = new Size(111, 27);
             textBoxM.TabIndex = 7;
             textBoxM.Text = "0,4";
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(79, 108);
+            label3.Location = new Point(32, 109);
             label3.Name = "label3";
-            label3.Size = new Size(41, 20);
+            label3.Size = new Size(89, 20);
             label3.TabIndex = 6;
-            label3.Text = "Угол";
+            label3.Text = "Угол (град.)";
             // 
             // textBoxA
             // 
             textBoxA.Location = new Point(123, 105);
             textBoxA.Name = "textBoxA";
-            textBoxA.Size = new Size(125, 27);
+            textBoxA.Size = new Size(111, 27);
             textBoxA.TabIndex = 5;
             textBoxA.Text = "30";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(48, 70);
+            label2.Location = new Point(10, 71);
             label2.Name = "label2";
-            label2.Size = new Size(73, 20);
+            label2.Size = new Size(111, 20);
             label2.TabIndex = 4;
-            label2.Text = "Скорость";
+            label2.Text = "Скорость (м/с)";
             label2.Click += label2_Click;
             // 
             // textBoxV
             // 
             textBoxV.Location = new Point(123, 67);
             textBoxV.Name = "textBoxV";
-            textBoxV.Size = new Size(125, 27);
+            textBoxV.Size = new Size(111, 27);
             textBoxV.TabIndex = 3;
             textBoxV.Text = "50";
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(60, 35);
+            label1.Location = new Point(37, 36);
             label1.Name = "label1";
-            label1.Size = new Size(59, 20);
+            label1.Size = new Size(84, 20);
             label1.TabIndex = 2;
-            label1.Text = "Высота";
+            label1.Text = "Высота (м)";
             label1.Click += label1_Click;
             // 
             // textBoxH
             // 
             textBoxH.Location = new Point(123, 32);
             textBoxH.Name = "textBoxH";
-            textBoxH.Size = new Size(125, 27);
+            textBoxH.Size = new Size(111, 27);
             textBoxH.TabIndex = 1;
             textBoxH.Text = "1,8";
             // 
@@ -253,14 +261,6 @@
             results.RowHeadersWidth = 51;
             results.Size = new Size(1088, 365);
             results.TabIndex = 2;
-            // 
-            // war
-            // 
-            war.AutoSize = true;
-            war.Location = new Point(123, 137);
-            war.Name = "war";
-            war.Size = new Size(0, 20);
-            war.TabIndex = 15;
             // 
             // Form1
             // 
