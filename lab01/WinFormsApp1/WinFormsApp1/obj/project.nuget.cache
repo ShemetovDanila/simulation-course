@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "Jctrawt94zY=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\0illi\\source\\repos\\WinFormsApp1\\WinFormsApp1\\WinFormsApp1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\0illi\\.nuget\\packages\\winforms.datavisualization\\1.10.0\\winforms.datavisualization.1.10.0.nupkg.sha512"
+  ],
+  "logs": []
+}
