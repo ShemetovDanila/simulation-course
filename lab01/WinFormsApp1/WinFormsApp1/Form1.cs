@@ -71,7 +71,7 @@ namespace WinFormsApp1
                 ChartType = SeriesChartType.Line,
                 Name = $"Series{runNumber}"
             };
-            currentSeries.LegendText = $"dt={dt:F5}, h={y0}м, v={v}м/с, alph={textBoxA.Text}, m={m}кг, S={S}м^2";
+            currentSeries.LegendText = $"dt={dt:F5}, h={y0}м, v={v}м/с, alpha={textBoxA.Text}, m={m}кг, S={S}м^2";
             chart1.Series.Add(currentSeries);
 
             currentSeries.Points.AddXY(x, y);
@@ -91,6 +91,20 @@ namespace WinFormsApp1
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+
+            v = Math.Sqrt(vx * vx + vy * vy);
+
+            vx = vx - k * vx * v * dt;
+            vy = vy - (g + k * vy * v) * dt;
+
+            x = x + vx * dt;
+            y = y + vy * dt;
+
+            if (y > ymax) ymax = y;
+            if (x > xmax) xmax = x;
+
+            currentSeries.Points.AddXY(x, y);
+
             if (y <= 0)
             {
                 timer1.Stop();
@@ -103,28 +117,15 @@ namespace WinFormsApp1
                     m.ToString("F2"),
                     S.ToString("F4"),
                     dt.ToString("F4"),
-                    xmax.ToString("F2"),
-                    ymax.ToString("F2"),
-                    v.ToString("F2")
+                    xmax.ToString("F4"),
+                    ymax.ToString("F4"),
+                    v.ToString("F4")
                 );
 
                 results.FirstDisplayedScrollingRowIndex = rowIndex;
 
                 return;
             }
-
-            v = Math.Sqrt(vx * vx + vy * vy);
-
-            x = x + vx * dt;
-            y = y + vy * dt;
-
-            vx = vx - k * vx * v * dt;
-            vy = vy - (g + k * vy * v) * dt;
-
-            if (y > ymax) ymax = y;
-            if (x > xmax) xmax = x;
-
-            currentSeries.Points.AddXY(x, y);
         }
 
         private void label7_Click(object sender, EventArgs e)
@@ -152,9 +153,11 @@ namespace WinFormsApp1
 
         }
 
-        private void groupBox1_Enter(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
-
+            chart1.Series.Clear();
+            results.Rows.Clear();
+            runNumber = 0;
         }
     }
 }

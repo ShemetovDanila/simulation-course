@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Jctrawt94zY=",
+  "dgSpecHash": "4GuwbRzkotQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\0illi\\source\\repos\\WinFormsApp1\\WinFormsApp1\\WinFormsApp1.csproj",
+  "projectFilePath": "D:\\simulation\\simulation-course\\lab01\\WinFormsApp1\\WinFormsApp1\\WinFormsApp1.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\0illi\\.nuget\\packages\\winforms.datavisualization\\1.10.0\\winforms.datavisualization.1.10.0.nupkg.sha512"
   ],

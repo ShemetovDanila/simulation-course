@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             groupBox1 = new GroupBox();
             label4 = new Label();
@@ -47,35 +47,34 @@
             label1 = new Label();
             textBoxH = new TextBox();
             button1 = new Button();
-            groupBox2 = new GroupBox();
-            results = new DataGridView();
             timer1 = new System.Windows.Forms.Timer(components);
+            results = new DataGridView();
+            clear = new Button();
             ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
             groupBox1.SuspendLayout();
-            groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)results).BeginInit();
             SuspendLayout();
             // 
             // chart1
             // 
-            chartArea1.AxisX.Maximum = 20D;
-            chartArea1.AxisX.Minimum = 0D;
-            chartArea1.AxisY.Maximum = 10D;
-            chartArea1.AxisY.Minimum = 0D;
-            chartArea1.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea1);
-            legend1.MaximumAutoSize = 100F;
-            legend1.Name = "Legend1";
-            chart1.Legends.Add(legend1);
+            chartArea2.AxisX.Maximum = 20D;
+            chartArea2.AxisX.Minimum = 0D;
+            chartArea2.AxisY.Maximum = 10D;
+            chartArea2.AxisY.Minimum = 0D;
+            chartArea2.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea2);
+            legend2.MaximumAutoSize = 100F;
+            legend2.Name = "Legend1";
+            chart1.Legends.Add(legend2);
             chart1.Location = new Point(5, 171);
             chart1.Name = "chart1";
-            series1.BorderWidth = 3;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Color = Color.FromArgb(255, 128, 0);
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            chart1.Series.Add(series1);
+            series2.BorderWidth = 3;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Color = Color.FromArgb(255, 128, 0);
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            chart1.Series.Add(series2);
             chart1.Size = new Size(1074, 373);
             chart1.TabIndex = 0;
             chart1.Text = "chart1";
@@ -83,6 +82,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(clear);
             groupBox1.Controls.Add(label4);
             groupBox1.Controls.Add(textBoxSt);
             groupBox1.Controls.Add(label5);
@@ -99,10 +99,9 @@
             groupBox1.Dock = DockStyle.Top;
             groupBox1.Location = new Point(0, 0);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(1079, 163);
+            groupBox1.Size = new Size(1088, 163);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
-            groupBox1.Enter += groupBox1_Enter;
             // 
             // label4
             // 
@@ -212,43 +211,42 @@
             // 
             button1.Location = new Point(511, 10);
             button1.Name = "button1";
-            button1.Size = new Size(568, 153);
+            button1.Size = new Size(313, 153);
             button1.TabIndex = 0;
             button1.Text = "ЗАПУСК!";
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
-            // 
-            // groupBox2
-            // 
-            groupBox2.Controls.Add(results);
-            groupBox2.Dock = DockStyle.Bottom;
-            groupBox2.Location = new Point(0, 545);
-            groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(1079, 240);
-            groupBox2.TabIndex = 2;
-            groupBox2.TabStop = false;
-            groupBox2.Text = "groupBox2";
-            // 
-            // results
-            // 
-            results.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            results.Location = new Point(0, 5);
-            results.Name = "results";
-            results.RowHeadersWidth = 51;
-            results.Size = new Size(1079, 235);
-            results.TabIndex = 0;
             // 
             // timer1
             // 
             timer1.Interval = 5;
             timer1.Tick += timer1_Tick;
             // 
+            // results
+            // 
+            results.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            results.Location = new Point(0, 550);
+            results.Name = "results";
+            results.RowHeadersWidth = 51;
+            results.Size = new Size(1088, 365);
+            results.TabIndex = 2;
+            // 
+            // clear
+            // 
+            clear.Location = new Point(923, 10);
+            clear.Name = "clear";
+            clear.Size = new Size(165, 147);
+            clear.TabIndex = 13;
+            clear.Text = "Очистить график и таблицу";
+            clear.UseVisualStyleBackColor = true;
+            clear.Click += button2_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1079, 785);
-            Controls.Add(groupBox2);
+            ClientSize = new Size(1088, 914);
+            Controls.Add(results);
             Controls.Add(groupBox1);
             Controls.Add(chart1);
             Name = "Form1";
@@ -256,7 +254,6 @@
             ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
-            groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)results).EndInit();
             ResumeLayout(false);
         }
@@ -266,7 +263,6 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private GroupBox groupBox1;
         private Button button1;
-        private GroupBox groupBox2;
         private Label label4;
         private TextBox textBoxSt;
         private Label label5;
@@ -281,5 +277,6 @@
         private TextBox textBoxH;
         private System.Windows.Forms.Timer timer1;
         private DataGridView results;
+        private Button clear;
     }
 }
