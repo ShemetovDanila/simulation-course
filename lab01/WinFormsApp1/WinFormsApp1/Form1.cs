@@ -46,18 +46,25 @@ namespace WinFormsApp1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            dt = double.Parse(textBoxSt.Text);
-            v = double.Parse(textBoxV.Text);
-            y0 = double.Parse(textBoxH.Text);
-            alpha = double.Parse(textBoxA.Text);
-            m = double.Parse(textBoxM.Text);
-            S = double.Parse(textBoxPl.Text);
+            war.Text = "";
+
+            if (!double.TryParse(textBoxSt.Text, out dt) || dt <= 0
+                || !double.TryParse(textBoxV.Text, out v) || v <= 0
+                || !double.TryParse(textBoxH.Text, out y0) || y0 <= 0
+                || !double.TryParse(textBoxA.Text, out alpha) || alpha < -90 || alpha > 90
+                || !double.TryParse(textBoxM.Text, out m) || m <= 0
+                || !double.TryParse(textBoxPl.Text, out S) || S <= 0
+            )
+            {
+                war.Text = "Ошибка: введите корректные данные!";
+                return;
+            }
 
             k = 0.5 * C * rho * S / m;
-            alpha = alpha * Math.PI / 180.0;
+            double alphaRad = alpha * Math.PI / 180.0;
 
-            vx = v * Math.Cos(alpha);
-            vy = v * Math.Sin(alpha);
+            vx = v * Math.Cos(alphaRad);
+            vy = v * Math.Sin(alphaRad);
 
             x = 0;
             y = y0;
@@ -94,11 +101,11 @@ namespace WinFormsApp1
 
             v = Math.Sqrt(vx * vx + vy * vy);
 
-            vx = vx - k * vx * v * dt;
-            vy = vy - (g + k * vy * v) * dt;
-
             x = x + vx * dt;
             y = y + vy * dt;
+
+            vx = vx - k * vx * v * dt;
+            vy = vy - (g + k * vy * v) * dt;
 
             if (y > ymax) ymax = y;
             if (x > xmax) xmax = x;
@@ -114,8 +121,8 @@ namespace WinFormsApp1
                     y0.ToString("F2"),
                     v0.ToString("F2"),
                     textBoxA.Text,
-                    m.ToString("F2"),
-                    S.ToString("F4"),
+                    m.ToString("F4"),
+                    S.ToString("F6"),
                     dt.ToString("F4"),
                     xmax.ToString("F4"),
                     ymax.ToString("F4"),
@@ -158,6 +165,90 @@ namespace WinFormsApp1
             chart1.Series.Clear();
             results.Rows.Clear();
             runNumber = 0;
+            war.Text = "";
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            war.Text = "";
+
+            if (!double.TryParse(textBoxV.Text, out v) || v <= 0
+                || !double.TryParse(textBoxH.Text, out y0) || y0 <= 0
+                || !double.TryParse(textBoxA.Text, out alpha) || alpha < -90 || alpha > 90
+                || !double.TryParse(textBoxM.Text, out m) || m <= 0
+                || !double.TryParse(textBoxPl.Text, out S) || S <= 0
+            )
+            {
+                war.Text = "Ошибка: введите корректные данные!";
+                return;
+            }
+
+            double[] dtValues = { 1, 0.1, 0.01, 0.001, 0.0001 };
+
+            foreach (double step in dtValues)
+            {
+                dt = step;
+                k = 0.5 * C * rho * S / m;
+                double alphaRad = alpha * Math.PI / 180.0;
+
+                double vx = v * Math.Cos(alphaRad);
+                double vy = v * Math.Sin(alphaRad);
+
+                double x = 0;
+                double y = y0;
+                double ymax = 0;
+                double xmax = 0;
+                double v0 = v;
+                double currentV = v;
+
+                runNumber++;
+
+                Series series = new Series
+                {
+                    ChartType = SeriesChartType.Line,
+                    Name = $"Series{runNumber}"
+                };
+                series.LegendText = $"dt={dt:F5}, h={y0}м, v={v}м/с, alpha={textBoxA.Text}, m={m}кг, S={S}м^2";
+                chart1.Series.Add(series);
+
+                series.Points.AddXY(x, y);
+
+                while (y > 0)
+                {
+                    currentV = Math.Sqrt(vx * vx + vy * vy);
+
+                    x = x + vx * dt;
+                    y = y + vy * dt;
+
+                    vx = vx - k * vx * currentV * dt;
+                    vy = vy - (g + k * vy * currentV) * dt;
+
+                    if (y > ymax) ymax = y;
+                    if (x > xmax) xmax = x;
+
+                    series.Points.AddXY(x, y);
+                }
+
+                int rowIndex = results.Rows.Add(
+                    runNumber,
+                    y0.ToString("F2"),
+                    v0.ToString("F2"),
+                    textBoxA.Text,
+                    m.ToString("F4"),
+                    S.ToString("F6"),
+                    dt.ToString("F4"),
+                    xmax.ToString("F4"),
+                    ymax.ToString("F4"),
+                    currentV.ToString("F4")
+                );
+
+                results.FirstDisplayedScrollingRowIndex = rowIndex;
+            }
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 }
