@@ -9,54 +9,47 @@ using namespace std;
 double solve(double L, double tau, double h, double T_left, double T_right,
     double T_init, double T_end, double rho, double c, double lambda) {
 
-    int N = static_cast<int>(L / h);
+    int N = static_cast<int>(round(L / h));
 
     if (h > L || N < 2) {
         return -999.0;
     }
 
-    int time_steps_total = static_cast<int>(T_end / tau);
+    int time_steps_total = static_cast<int>(round(T_end / tau));
     double dt = T_end / time_steps_total;
 
     vector<double> T_prev(N + 1, T_init);
     vector<double> T_new(N + 1);
-    vector<double> A(N + 1);
-    vector<double> B(N + 1);
-    vector<double> C_coef(N + 1);
-    vector<double> F(N + 1);
     vector<double> alpha(N + 1);
     vector<double> beta(N + 1);
 
     double lambda_h2 = lambda / (h * h);
     double rho_c_tau = (rho * c) / dt;
-
-    for (int i = 0; i <= N; i++) {
-        A[i] = lambda_h2;
-        C_coef[i] = lambda_h2;
-        B[i] = 2.0 * lambda_h2 + rho_c_tau;
-    }
+    double A = lambda_h2;
+    double C_coef = lambda_h2;
+    double B = 2.0 * lambda_h2 + rho_c_tau;
 
     T_prev[0] = T_left;
     T_prev[N] = T_right;
 
     for (int step = 0; step < time_steps_total; step++) {
+        vector<double> F(N + 1);
         for (int i = 0; i <= N; i++) {
             F[i] = -rho_c_tau * T_prev[i];
         }
 
         alpha[0] = 0.0;
-        beta[0] = T_right;
+        beta[0] = T_left;
 
         for (int i = 1; i < N; i++) {
-            alpha[i] = A[i] / (B[i] - C_coef[i] * alpha[i - 1]);
-            beta[i] = (C_coef[i] * beta[i - 1] - F[i]) / (B[i] - C_coef[i] * alpha[i - 1]);
+            alpha[i] = A / (B - C_coef * alpha[i - 1]);
+            beta[i] = (C_coef * beta[i - 1] - F[i]) / (B - C_coef * alpha[i - 1]);
         }
 
         T_new[N] = T_right;
         for (int i = N - 1; i >= 0; i--) {
             T_new[i] = alpha[i] * T_new[i + 1] + beta[i];
         }
-        T_new[0] = T_left;
 
         T_prev = T_new;
     }
@@ -135,7 +128,7 @@ int main() {
             double result = solve(L, tau, h, T_left, T_right, T_init, T_end, rho, c, lambda);
 
             if (result < -998) {
-                cout << " " << right << setw(col_width - 1) << "N/A" << " |";
+                cout << " " << right << setw(col_width - 1) << "N/A" << "|";
             }
             else {
                 cout << " " << right << setw(col_width - 1) << result << "|";
