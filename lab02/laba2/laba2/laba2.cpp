@@ -11,8 +11,8 @@ double solve(double L, double tau, double h, double T_left, double T_right,
 
     int N = static_cast<int>(round(L / h));
 
-    if (h > L || N < 2) {
-        return -999.0;
+    if (N < 2) {
+        N = 2;
     }
 
     int time_steps_total = static_cast<int>(round(T_end / tau));
@@ -38,18 +38,19 @@ double solve(double L, double tau, double h, double T_left, double T_right,
             F[i] = -rho_c_tau * T_prev[i];
         }
 
-        alpha[0] = 0.0;
-        beta[0] = T_left;
+        alpha[1] = A / B;
+        beta[1] = (C_coef * T_left - F[1]) / B;
 
-        for (int i = 1; i < N; i++) {
+        for (int i = 2; i < N; i++) {
             alpha[i] = A / (B - C_coef * alpha[i - 1]);
             beta[i] = (C_coef * beta[i - 1] - F[i]) / (B - C_coef * alpha[i - 1]);
         }
 
         T_new[N] = T_right;
-        for (int i = N - 1; i >= 0; i--) {
+        for (int i = N - 1; i >= 1; i--) {
             T_new[i] = alpha[i] * T_new[i + 1] + beta[i];
         }
+        T_new[0] = T_left;
 
         T_prev = T_new;
     }
@@ -99,7 +100,7 @@ int main() {
     vector<double> space_steps = { 0.1, 0.01, 0.001, 0.0001 };
 
     cout << fixed << setprecision(4);
-    cout << "\n=== ТАБЛИЦА: ТЕМПЕРАТУРА В ЦЕНТРЕ ПЛАСТИНЫ (C) ПОСЛЕ " << T_end << " С ===" << endl;
+    cout << "\n=== ТАБЛИЦА: ТЕМПЕРАТУРА В ЦЕНТРЕ ПЛАСТИНЫ (C) ПОСЛЕ " << T_end << "c ===" << endl;
     cout << "Столбец - шаг по пространству h (м); Строка - шаг по времени tau (с)" << endl << endl;
 
     int col_width = 14;
@@ -126,13 +127,9 @@ int main() {
         for (size_t ti = 0; ti < time_steps.size(); ti++) {
             double tau = time_steps[ti];
             double result = solve(L, tau, h, T_left, T_right, T_init, T_end, rho, c, lambda);
-
-            if (result < -998) {
-                cout << " " << right << setw(col_width - 1) << "N/A" << "|";
-            }
-            else {
-                cout << " " << right << setw(col_width - 1) << result << "|";
-            }
+            
+            cout << " " << right << setw(col_width - 1) << result << "|";
+            
             cout.flush();
         }
         cout << endl;
