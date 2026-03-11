@@ -1,0 +1,138 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|d:\\simulation\\simulation-course\\lab03\\winformsapp1\\winformsapp1\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|solutionrelative:winformsapp1\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|d:\\simulation\\simulation-course\\lab03\\winformsapp1\\winformsapp1\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|solutionrelative:winformsapp1\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|d:\\simulation\\simulation-course\\lab03\\winformsapp1\\winformsapp1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|solutionrelative:winformsapp1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|d:\\simulation\\simulation-course\\lab03\\winformsapp1\\winformsapp1\\forestautomaton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|solutionrelative:winformsapp1\\forestautomaton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|d:\\simulation\\simulation-course\\lab03\\winformsapp1\\winformsapp1\\simulationparams.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|solutionrelative:winformsapp1\\simulationparams.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|d:\\simulation\\simulation-course\\lab03\\winformsapp1\\winformsapp1\\callstates.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|solutionrelative:winformsapp1\\callstates.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|d:\\simulation\\simulation-course\\lab03\\winformsapp1\\winformsapp1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{E0234AC2-FA2A-46C6-9E87-507A647246CD}|WinFormsApp1\\WinFormsApp1.csproj|solutionrelative:winformsapp1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Program.cs",
+              "RelativeDocumentMoniker": "WinFormsApp1\\Program.cs",
+              "ToolTip": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Program.cs",
+              "RelativeToolTip": "WinFormsApp1\\Program.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAwA0AAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T15:20:42.878Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "WinFormsApp1\\Form1.Designer.cs",
+              "ToolTip": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Form1.Designer.cs",
+              "RelativeToolTip": "WinFormsApp1\\Form1.Designer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T15:20:05.533Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Form1.cs",
+              "RelativeDocumentMoniker": "WinFormsApp1\\Form1.cs",
+              "ToolTip": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Form1.cs",
+              "RelativeToolTip": "WinFormsApp1\\Form1.cs",
+              "ViewState": "AgIAAK8BAAAAAAAAAAAmwL4BAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T15:19:22.835Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Forestautomaton.cs",
+              "DocumentMoniker": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Forestautomaton.cs",
+              "RelativeDocumentMoniker": "WinFormsApp1\\Forestautomaton.cs",
+              "ToolTip": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Forestautomaton.cs",
+              "RelativeToolTip": "WinFormsApp1\\Forestautomaton.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T15:18:43.634Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Simulationparams.cs",
+              "DocumentMoniker": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Simulationparams.cs",
+              "RelativeDocumentMoniker": "WinFormsApp1\\Simulationparams.cs",
+              "ToolTip": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Simulationparams.cs",
+              "RelativeToolTip": "WinFormsApp1\\Simulationparams.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T15:17:30.546Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Callstates.cs",
+              "DocumentMoniker": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Callstates.cs",
+              "RelativeDocumentMoniker": "WinFormsApp1\\Callstates.cs",
+              "ToolTip": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Callstates.cs",
+              "RelativeToolTip": "WinFormsApp1\\Callstates.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T15:10:05.66Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Form1.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "DocumentMoniker": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Form1.cs",
+              "RelativeDocumentMoniker": "WinFormsApp1\\Form1.cs",
+              "ToolTip": "D:\\simulation\\simulation-course\\lab03\\WinFormsApp1\\WinFormsApp1\\Form1.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "RelativeToolTip": "WinFormsApp1\\Form1.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T14:58:46.612Z",
+              "EditorCaption": " [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

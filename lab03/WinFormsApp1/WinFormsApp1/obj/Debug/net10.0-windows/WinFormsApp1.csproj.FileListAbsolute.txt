@@ -1,0 +1,7 @@
+D:\simulation\simulation-course\lab03\WinFormsApp1\WinFormsApp1\obj\Debug\net10.0-windows\WinFormsApp1.Form1.resources
+D:\simulation\simulation-course\lab03\WinFormsApp1\WinFormsApp1\obj\Debug\net10.0-windows\WinFormsApp1.csproj.GenerateResource.cache
+D:\simulation\simulation-course\lab03\WinFormsApp1\WinFormsApp1\obj\Debug\net10.0-windows\WinFormsApp1.GeneratedMSBuildEditorConfig.editorconfig
+D:\simulation\simulation-course\lab03\WinFormsApp1\WinFormsApp1\obj\Debug\net10.0-windows\WinFormsApp1.AssemblyInfoInputs.cache
+D:\simulation\simulation-course\lab03\WinFormsApp1\WinFormsApp1\obj\Debug\net10.0-windows\WinFormsApp1.AssemblyInfo.cs
+D:\simulation\simulation-course\lab03\WinFormsApp1\WinFormsApp1\obj\Debug\net10.0-windows\WinFormsApp1.csproj.CoreCompileInputs.cache
+D:\simulation\simulation-course\lab03\WinFormsApp1\WinFormsApp1\obj\Debug\net10.0-windows\WinFormsApp1.sourcelink.json
