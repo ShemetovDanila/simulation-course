@@ -1,5 +1,4 @@
 ﻿using System;
-using WinFormsApp1;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -9,10 +8,6 @@ namespace WinFormsApp1
     {
         private System.ComponentModel.IContainer components = null;
 
-        // Вспомогательные панели для кистей
-        private Panel _sizePanel;
-        private Panel _brushTypePanel;
-
         protected override void Dispose(bool disposing)
         {
             if (disposing && components != null) components.Dispose();
@@ -20,7 +15,7 @@ namespace WinFormsApp1
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  ПОСТРОЕНИЕ UI
+        //  ПОСТРОЕНИЕ UI — явные координаты, без путаницы DockStyle.Top
         // ══════════════════════════════════════════════════════════════════════
         private void InitializeComponent()
         {
@@ -32,7 +27,7 @@ namespace WinFormsApp1
             _timer.Tick += Timer_Tick;
 
             // ── Форма ─────────────────────────────────────────────────────────
-            Text = "🌲 Лесной пожар — Клеточный автомат  [Пробел: старт/пауза | →: шаг | R: генерация]";
+            Text = "ForestFire";
             BackColor = Color.FromArgb(28, 28, 30);
             ForeColor = Color.FromArgb(220, 220, 220);
             Font = new Font("Segoe UI", 8.5f);
@@ -42,189 +37,14 @@ namespace WinFormsApp1
             AutoScaleMode = AutoScaleMode.None;
             KeyPreview = true;
 
-            // ── Размер формы ─────────────────────────────────────────────────
-            const int renderW = GridCols * CellSize; // 800
-            const int renderH = GridRows * CellSize; // 600
-            const int panelW = 224;
+            const int renderW = GridCols * CellSize;  // 800
+            const int renderH = GridRows * CellSize;  // 600
+            const int panelW = 230;
             const int statusH = 26;
+            const int innerW = 210;  // ширина контролов внутри правой панели
+            const int lx = 8;    // левый отступ в правой панели
+
             ClientSize = new Size(renderW + panelW, renderH + statusH);
-
-            // ══════════════════════════════════════════════════════════════════
-            //  ПРАВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ (AutoScroll)
-            // ══════════════════════════════════════════════════════════════════
-            _rightPanel = new Panel
-            {
-                Width = panelW,
-                Dock = DockStyle.Right,
-                BackColor = Color.FromArgb(35, 35, 38),
-                AutoScroll = true,
-                Padding = new Padding(8, 8, 4, 8),
-            };
-
-            // Контейнер содержимого (чтобы AutoScroll работал корректно)
-            Panel content = new Panel
-            {
-                Width = panelW - 4,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                BackColor = Color.Transparent,
-            };
-
-            // Заполняем content снизу вверх (DockStyle.Top добавляет сверху)
-            // Поэтому добавляем в обратном порядке относительно визуального
-            // ══════════════════════════════════════════════════════════════════
-
-            // ── Заголовок ─────────────────────────────────────────────────────
-            var lblTitle = MakeHeader("ЛЕСНОЙ ПОЖАР · КА", 38);
-
-            // ── Управление симуляцией ─────────────────────────────────────────
-            var secSim = MakeSectionLabel("СИМУЛЯЦИЯ");
-            _btnStartPause = MakeBtn("▶  Старт", Color.FromArgb(38, 130, 60));
-            _btnStep = MakeBtn("→  Шаг", Color.FromArgb(45, 80, 140));
-            _btnRegen = MakeBtn("↺  Новая карта", Color.FromArgb(75, 55, 120));
-            _btnClearAll = MakeBtn("⬜  Очистить всё", Color.FromArgb(75, 55, 45));
-
-            _btnStartPause.Click += BtnStartPause_Click;
-            _btnStep.Click += BtnStep_Click;
-            _btnRegen.Click += BtnRegen_Click;
-            _btnClearAll.Click += BtnClearAll_Click;
-
-            // ── Информация ────────────────────────────────────────────────────
-            _lblGeneration = new Label
-            {
-                Text = "Поколение: 0",
-                Dock = DockStyle.Top,
-                Height = 20,
-                ForeColor = Color.FromArgb(150, 200, 150),
-                Font = new Font("Segoe UI", 8f),
-                Padding = new Padding(2, 2, 0, 0),
-            };
-
-            // ── Размер кисти ──────────────────────────────────────────────────
-            var secBrushSize = MakeSectionLabel("РАЗМЕР КИСТИ  [1/2/3]");
-            _sizeBtns = new Button[3];
-            _sizePanel = new Panel
-            {
-                Height = 34,
-                Dock = DockStyle.Top,
-                BackColor = Color.Transparent,
-            };
-
-            // ── Тип кисти ─────────────────────────────────────────────────────
-            var secBrushType = MakeSectionLabel("ТИП КИСТИ");
-            _brushBtns = new Button[8];
-            _brushTypePanel = new Panel
-            {
-                Height = 8 * 29,
-                Dock = DockStyle.Top,
-                BackColor = Color.Transparent,
-                AutoSize = false,
-            };
-
-            // ── Параметры симуляции ───────────────────────────────────────────
-            var secParams = MakeSectionLabel("ПАРАМЕТРЫ  (изменяются в реальном времени)");
-
-            // Скорость
-            (var lblSpeedName, _lblSpeedVal, _trkSpeed) = MakeSlider(
-                "Скорость", "5", 1, 10, 5, TrkSpeed_ValueChanged);
-
-            // Молния f
-            (var lblLightName, _lblLightningVal, _trkLightning) = MakeSlider(
-                "Молния [f]", "35×10⁻⁶", 0, 100, 35, TrkLightning_ValueChanged);
-
-            // Рост p
-            (var lblGrowthName, _lblGrowthVal, _trkGrowth) = MakeSlider(
-                "Рост [p]", "0.60%", 1, 200, 60, TrkGrowth_ValueChanged);
-
-            // Пепел бонус
-            (var lblAshName, _lblAshBonusVal, _trkAshBonus) = MakeSlider(
-                "Удобрение пепла", "+2.4%", 0, 50, 24, TrkAshBonus_ValueChanged);
-
-            // Воспламенение
-            (var lblIgnName, _lblIgnitionVal, _trkIgnition) = MakeSlider(
-                "Воспламенение", "45%", 10, 90, 45, TrkIgnition_ValueChanged);
-
-            // Дальний огонь
-            (var lblLongName, _lblLongRangeVal, _trkLongRange) = MakeSlider(
-                "Дальний огонь", "L1:12% / L2:30%", 0, 60, 30, TrkLongRange_ValueChanged);
-
-            // ── Легенда ───────────────────────────────────────────────────────
-            var secLegend = MakeSectionLabel("СПРАВКА");
-            var lblLegend = new Label
-            {
-                Text = "Правила:\n"
-                     + "1. Огонь → пепел (правило 1)\n"
-                     + "2. Дерево + сосед горит → огонь\n"
-                     + "3. Дерево → огонь с вероятн. f\n"
-                     + "4. Пустое → дерево с вероятн. p\n\n"
-                     + "Доп. правила:\n"
-                     + "• Вода блокирует огонь\n"
-                     + "• Камень непроходим\n"
-                     + "• Пепел удобряет почву\n"
-                     + "• 3 уровня огня (0/1/2)\n"
-                     + "  L2 поджигает через клетку\n\n"
-                     + "Горячие клавиши:\n"
-                     + "Пробел   Старт / Пауза\n"
-                     + "→        Шаг вперёд\n"
-                     + "R        Новая карта\n"
-                     + "C        Очистить\n"
-                     + "1/2/3    Размер кисти\n"
-                     + "ПКМ      Ластик (пусто)",
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 210,
-                ForeColor = Color.FromArgb(130, 130, 140),
-                Font = new Font("Consolas", 7.5f),
-                Padding = new Padding(2, 4, 0, 0),
-            };
-
-            // ── Добавляем всё в content СВЕРХУ ВНИЗ (каждый с DockStyle.Top) ─
-            // DockStyle.Top: последний добавленный → самый снизу видимый.
-            // Порядок добавления здесь = визуальный порядок.
-
-            content.Controls.Add(lblLegend);
-            content.Controls.Add(secLegend);
-            content.Controls.Add(MakeSep());
-
-            content.Controls.Add(lblLongName);
-            content.Controls.Add(_trkLongRange);
-            content.Controls.Add(_lblLongRangeVal);
-            content.Controls.Add(lblIgnName);
-            content.Controls.Add(_trkIgnition);
-            content.Controls.Add(_lblIgnitionVal);
-            content.Controls.Add(lblAshName);
-            content.Controls.Add(_trkAshBonus);
-            content.Controls.Add(_lblAshBonusVal);
-            content.Controls.Add(lblGrowthName);
-            content.Controls.Add(_trkGrowth);
-            content.Controls.Add(_lblGrowthVal);
-            content.Controls.Add(lblLightName);
-            content.Controls.Add(_trkLightning);
-            content.Controls.Add(_lblLightningVal);
-            content.Controls.Add(lblSpeedName);
-            content.Controls.Add(_trkSpeed);
-            content.Controls.Add(_lblSpeedVal);
-            content.Controls.Add(secParams);
-            content.Controls.Add(MakeSep());
-
-            content.Controls.Add(_brushTypePanel);
-            content.Controls.Add(secBrushType);
-            content.Controls.Add(MakeSep());
-
-            content.Controls.Add(_sizePanel);
-            content.Controls.Add(secBrushSize);
-            content.Controls.Add(MakeSep());
-
-            content.Controls.Add(_lblGeneration);
-            content.Controls.Add(_btnClearAll);
-            content.Controls.Add(_btnRegen);
-            content.Controls.Add(_btnStep);
-            content.Controls.Add(_btnStartPause);
-            content.Controls.Add(secSim);
-
-            content.Controls.Add(lblTitle);
-
-            _rightPanel.Controls.Add(content);
 
             // ══════════════════════════════════════════════════════════════════
             //  СТРОКА СТАТУСА
@@ -233,18 +53,199 @@ namespace WinFormsApp1
             {
                 Height = statusH,
                 Dock = DockStyle.Bottom,
-                BackColor = Color.FromArgb(22, 22, 24),
+                BackColor = Color.FromArgb(20, 20, 22),
                 Padding = new Padding(8, 0, 0, 0),
             };
             _lblStatus = new Label
             {
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Color.FromArgb(145, 145, 155),
-                Font = new Font("Segoe UI", 7.8f),
-                Text = "⏸ Пауза",
+                ForeColor = Color.FromArgb(140, 140, 150),
+                Font = new Font("Segoe UI", 7.6f),
+                Text = "⏸  Пауза",
             };
             statusBar.Controls.Add(_lblStatus);
+
+            // ══════════════════════════════════════════════════════════════════
+            //  ПРАВАЯ ПАНЕЛЬ — ScrollPanel с явными Y-позициями
+            // ══════════════════════════════════════════════════════════════════
+            _rightPanel = new Panel
+            {
+                Width = panelW,
+                Dock = DockStyle.Right,
+                BackColor = Color.FromArgb(34, 34, 38),
+                AutoScroll = true,
+            };
+
+            // Внутренний контейнер для AutoScroll
+            Panel inner = new Panel
+            {
+                Width = panelW - SystemInformation.VerticalScrollBarWidth - 2,
+                BackColor = Color.Transparent,
+            };
+            _rightPanel.Controls.Add(inner);
+
+            // Счётчик Y для расположения контролов
+            int y = 8;
+
+            // ── Заголовок ─────────────────────────────────────────────────────
+            inner.Controls.Add(MkLabel("🌲  ForestFire", lx, y, innerW, 32,
+                Color.FromArgb(210, 172, 60), new Font("Segoe UI", 10.5f, FontStyle.Bold),
+                ContentAlignment.MiddleCenter));
+            y += 38;
+
+            // ══════════════════════════════════════════════════════════════════
+            //  СЕКЦИЯ: СИМУЛЯЦИЯ
+            // ══════════════════════════════════════════════════════════════════
+            inner.Controls.Add(MkSection("СИМУЛЯЦИЯ", lx, y, innerW)); y += 22;
+
+            _btnStartPause = MkBtn("▶  Старт", Color.FromArgb(38, 130, 60), lx, y, innerW, 34);
+            _btnStartPause.Click += BtnStartPause_Click;
+            inner.Controls.Add(_btnStartPause);
+            y += 38;
+
+            int halfW = (innerW / 2) - 3;
+            _btnStep = MkBtn("→  Шаг", Color.FromArgb(40, 72, 135),
+                             lx, y, halfW, 30);
+            _btnStep.Click += BtnStep_Click;
+            inner.Controls.Add(_btnStep);
+
+            _btnRegen = MkBtn("↺  Новая карта", Color.FromArgb(72, 52, 118),
+                              lx + halfW + 6, y, halfW, 30);
+            _btnRegen.Click += BtnRegen_Click;
+            inner.Controls.Add(_btnRegen);
+            y += 34;
+
+            _btnClearAll = MkBtn("⬜  Очистить всё", Color.FromArgb(80, 52, 40),
+                                 lx, y, innerW, 30);
+            _btnClearAll.Click += BtnClearAll_Click;
+            inner.Controls.Add(_btnClearAll);
+            y += 36;
+
+            // ── Скорость ──────────────────────────────────────────────────────
+            inner.Controls.Add(MkCaption("Скорость симуляции", lx, y, innerW)); y += 17;
+            _trkSpeed = MkTrack(1, 10, 5, lx, y, innerW);
+            _trkSpeed.ValueChanged += TrkSpeed_ValueChanged;
+            inner.Controls.Add(_trkSpeed); y += 26;
+            _lblSpeedVal = MkValue("5", lx, y, innerW);
+            inner.Controls.Add(_lblSpeedVal); y += 16;
+
+            // ── Поколение ─────────────────────────────────────────────────────
+            _lblGeneration = MkLabel("Поколение: 0", lx, y, innerW, 18,
+                Color.FromArgb(130, 200, 130), new Font("Segoe UI", 8f));
+            inner.Controls.Add(_lblGeneration); y += 22;
+
+            // ══════════════════════════════════════════════════════════════════
+            //  СЕКЦИЯ: КИСТЬ
+            // ══════════════════════════════════════════════════════════════════
+            inner.Controls.Add(MkSep(lx, y, innerW)); y += 10;
+            inner.Controls.Add(MkSection("КИСТЬ", lx, y, innerW)); y += 22;
+
+            // Размер кисти
+            inner.Controls.Add(MkCaption("Размер  ( клавиши 1 / 2 / 3 )", lx, y, innerW)); y += 17;
+            _sizePanel = new Panel
+            {
+                Location = new Point(lx, y),
+                Size = new Size(innerW, 32),
+                BackColor = Color.Transparent,
+            };
+            inner.Controls.Add(_sizePanel); y += 36;
+
+            // Тип кисти
+            inner.Controls.Add(MkCaption("Тип  (ЛКМ — рисовать, ПКМ — ластик)", lx, y, innerW)); y += 17;
+            _brushTypePanel = new Panel
+            {
+                Location = new Point(lx, y),
+                Size = new Size(innerW, 8 * 30),
+                BackColor = Color.Transparent,
+            };
+            inner.Controls.Add(_brushTypePanel); y += 8 * 30 + 4;
+
+            // ══════════════════════════════════════════════════════════════════
+            //  СЕКЦИЯ: ПАРАМЕТРЫ
+            // ══════════════════════════════════════════════════════════════════
+            inner.Controls.Add(MkSep(lx, y, innerW)); y += 10;
+            inner.Controls.Add(MkSection("ПАРАМЕТРЫ  (работают в реальном времени)", lx, y, innerW)); y += 22;
+
+            // Молния [f]
+            inner.Controls.Add(MkCaption("Молния / поджог  [f]", lx, y, innerW)); y += 17;
+            _trkLightning = MkTrack(0, 100, 35, lx, y, innerW);
+            _trkLightning.ValueChanged += TrkLightning_ValueChanged;
+            inner.Controls.Add(_trkLightning); y += 26;
+            _lblLightningVal = MkValue("35×10⁻⁶", lx, y, innerW);
+            inner.Controls.Add(_lblLightningVal); y += 18;
+
+            // Рост [p]
+            inner.Controls.Add(MkCaption("Рост растительности  [p]", lx, y, innerW)); y += 17;
+            _trkGrowth = MkTrack(1, 200, 60, lx, y, innerW);
+            _trkGrowth.ValueChanged += TrkGrowth_ValueChanged;
+            inner.Controls.Add(_trkGrowth); y += 26;
+            _lblGrowthVal = MkValue("0.60%", lx, y, innerW);
+            inner.Controls.Add(_lblGrowthVal); y += 18;
+
+            // Удобрение пепла
+            inner.Controls.Add(MkCaption("Удобрение пепла", lx, y, innerW)); y += 17;
+            _trkAshBonus = MkTrack(0, 50, 24, lx, y, innerW);
+            _trkAshBonus.ValueChanged += TrkAshBonus_ValueChanged;
+            inner.Controls.Add(_trkAshBonus); y += 26;
+            _lblAshBonusVal = MkValue("+2.4%", lx, y, innerW);
+            inner.Controls.Add(_lblAshBonusVal); y += 18;
+
+            // База воспламенения
+            inner.Controls.Add(MkCaption("База воспламенения", lx, y, innerW)); y += 17;
+            _trkIgnition = MkTrack(5, 90, 45, lx, y, innerW);
+            _trkIgnition.ValueChanged += TrkIgnition_ValueChanged;
+            inner.Controls.Add(_trkIgnition); y += 26;
+            _lblIgnitionVal = MkValue("45%", lx, y, innerW);
+            inner.Controls.Add(_lblIgnitionVal); y += 18;
+
+            // Дальний огонь
+            inner.Controls.Add(MkCaption("Дальний огонь  (уровни L1 / L2)", lx, y, innerW)); y += 17;
+            _trkLongRange = MkTrack(0, 60, 30, lx, y, innerW);
+            _trkLongRange.ValueChanged += TrkLongRange_ValueChanged;
+            inner.Controls.Add(_trkLongRange); y += 26;
+            _lblLongRangeVal = MkValue("L1:12% / L2:30%", lx, y, innerW);
+            inner.Controls.Add(_lblLongRangeVal); y += 18;
+
+            // ══════════════════════════════════════════════════════════════════
+            //  СЕКЦИЯ: СПРАВКА
+            // ══════════════════════════════════════════════════════════════════
+            inner.Controls.Add(MkSep(lx, y, innerW)); y += 10;
+            inner.Controls.Add(MkSection("СПРАВКА", lx, y, innerW)); y += 22;
+
+            string help =
+                "4 основных правила:\n" +
+                "1. Огонь → пепел после догорания\n" +
+                "2. Дерево + сосед горит → огонь\n" +
+                "3. Дерево → огонь с вероятн. f\n" +
+                "4. Пусто → растение с вероятн. p\n\n" +
+                "Доп. правила:\n" +
+                "• Вода блокирует распростр. огня\n" +
+                "• Камень — непреодолимый барьер\n" +
+                "• Пепел удобряет почву (+рост)\n" +
+                "• Уровни огня 0/1/2:\n" +
+                "  0 = трава (только соседи)\n" +
+                "  1 = молодые (+ малый дальний)\n" +
+                "  2 = взрослые (+ норм. дальний)\n\n" +
+                "Клавиши:\n" +
+                "  Пробел    Старт / Пауза\n" +
+                "  →         Шаг вперёд\n" +
+                "  R         Новая карта\n" +
+                "  C         Очистить\n" +
+                "  1 / 2 / 3 Размер кисти";
+
+            Label lblHelp = new Label
+            {
+                Text = help,
+                Location = new Point(lx, y),
+                Size = new Size(innerW, 260),
+                ForeColor = Color.FromArgb(115, 115, 128),
+                Font = new Font("Segoe UI", 7.5f),
+            };
+            inner.Controls.Add(lblHelp);
+            y += 265;
+
+            inner.Height = y + 10;
 
             // ══════════════════════════════════════════════════════════════════
             //  ПАНЕЛЬ РЕНДЕРИНГА
@@ -253,7 +254,7 @@ namespace WinFormsApp1
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.Black,
-                Cursor = Cursors.Crosshair,
+                Cursor = Cursors.Cross,
             };
             _renderPanel.Paint += RenderPanel_Paint;
             _renderPanel.MouseDown += RenderPanel_MouseDown;
@@ -261,11 +262,14 @@ namespace WinFormsApp1
             _renderPanel.MouseUp += RenderPanel_MouseUp;
 
             // ── Добавляем на форму ────────────────────────────────────────────
+            // Порядок важен: сначала Fill, потом Right, потом Bottom
             Controls.Add(_renderPanel);
             Controls.Add(_rightPanel);
             Controls.Add(statusBar);
 
-            // ── Инициализируем слайдеры (вызов обработчиков для установки params)
+            // ── Принудительно вызываем обработчики слайдеров ─────────────────
+            // Это устанавливает правильные значения в _params и метках.
+            // _params уже создан (field init в Form1.cs), поэтому NRE не будет.
             TrkSpeed_ValueChanged(this, EventArgs.Empty);
             TrkLightning_ValueChanged(this, EventArgs.Empty);
             TrkGrowth_ValueChanged(this, EventArgs.Empty);
@@ -275,112 +279,103 @@ namespace WinFormsApp1
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  ФАБРИЧНЫЕ МЕТОДЫ — UI-элементы
+        //  ФАБРИКИ UI-ЭЛЕМЕНТОВ
         // ══════════════════════════════════════════════════════════════════════
 
-        private static Label MakeHeader(string text, int height = 36)
+        private static Label MkLabel(string text, int x, int y, int w, int h,
+            Color fore, Font font,
+            ContentAlignment align = ContentAlignment.MiddleLeft)
         {
             return new Label
             {
                 Text = text,
-                Dock = DockStyle.Top,
-                Height = height,
-                TextAlign = ContentAlignment.MiddleCenter,
-                ForeColor = Color.FromArgb(195, 155, 55),
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
-                BackColor = Color.FromArgb(30, 30, 32),
+                Location = new Point(x, y),
+                Size = new Size(w, h),
+                ForeColor = fore,
+                Font = font,
+                TextAlign = align,
             };
         }
 
-        private static Label MakeSectionLabel(string text)
+        private static Label MkSection(string text, int x, int y, int w)
         {
             return new Label
             {
                 Text = text,
-                Dock = DockStyle.Top,
-                Height = 22,
-                TextAlign = ContentAlignment.BottomLeft,
-                ForeColor = Color.FromArgb(170, 130, 50),
-                Font = new Font("Segoe UI", 7.5f, FontStyle.Bold),
-                Padding = new Padding(2, 0, 0, 0),
+                Location = new Point(x, y),
+                Size = new Size(w, 20),
+                ForeColor = Color.FromArgb(188, 148, 52),
+                Font = new Font("Segoe UI", 8f, FontStyle.Bold),
             };
         }
 
-        private static Button MakeBtn(string text, Color color)
+        private static Label MkCaption(string text, int x, int y, int w)
         {
+            return new Label
+            {
+                Text = text,
+                Location = new Point(x, y),
+                Size = new Size(w, 16),
+                ForeColor = Color.FromArgb(170, 170, 182),
+                Font = new Font("Segoe UI", 7.5f),
+            };
+        }
+
+        private static Label MkValue(string text, int x, int y, int w)
+        {
+            return new Label
+            {
+                Text = text,
+                Location = new Point(x + 2, y),
+                Size = new Size(w, 16),
+                ForeColor = Color.FromArgb(105, 195, 115),
+                Font = new Font("Consolas", 7.5f),
+            };
+        }
+
+        private static Button MkBtn(string text, Color color, int x, int y, int w, int h)
+        {
+            Color baseColor = color;
             var btn = new Button
             {
                 Text = text,
-                Height = 32,
-                Dock = DockStyle.Top,
+                Location = new Point(x, y),
+                Size = new Size(w, h),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = color,
+                BackColor = baseColor,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 Cursor = Cursors.Hand,
-                Margin = new Padding(0, 0, 0, 3),
             };
-            btn.FlatAppearance.BorderColor = ControlPaint.Dark(color, 0.25f);
+            btn.FlatAppearance.BorderColor = ControlPaint.Dark(baseColor, 0.2f);
             btn.FlatAppearance.BorderSize = 1;
-            btn.MouseEnter += (s, e) => ((Button)s).BackColor = ControlPaint.Light(color, 0.2f);
-            btn.MouseLeave += (s, e) => ((Button)s).BackColor = color;
+            btn.MouseEnter += (s, e) => ((Button)s).BackColor = ControlPaint.Light(baseColor, 0.18f);
+            btn.MouseLeave += (s, e) => ((Button)s).BackColor = baseColor;
             return btn;
         }
 
-        private static Panel MakeSep(int height = 8)
+        private static TrackBar MkTrack(int min, int max, int val, int x, int y, int w)
         {
-            return new Panel
-            {
-                Height = height,
-                Dock = DockStyle.Top,
-                BackColor = Color.Transparent,
-            };
-        }
-
-        /// <summary>
-        /// Создаёт тройку: строка с названием, строка со значением, TrackBar.
-        /// Добавляются в content в порядке: label_name → trkbar → label_value
-        /// (DockStyle.Top снизу вверх: value внизу, name сверху).
-        /// </summary>
-        private static (Label name, Label val, TrackBar trk) MakeSlider(
-            string title, string initVal,
-            int min, int max, int defVal,
-            EventHandler handler)
-        {
-            var lblName = new Label
-            {
-                Text = title,
-                Dock = DockStyle.Top,
-                Height = 18,
-                ForeColor = Color.FromArgb(175, 175, 185),
-                Font = new Font("Segoe UI", 7.8f),
-                Padding = new Padding(2, 0, 0, 0),
-            };
-
-            var lblVal = new Label
-            {
-                Text = initVal,
-                Dock = DockStyle.Top,
-                Height = 14,
-                ForeColor = Color.FromArgb(120, 200, 130),
-                Font = new Font("Consolas", 7.2f),
-                Padding = new Padding(4, 0, 0, 0),
-            };
-
-            var trk = new TrackBar
+            return new TrackBar
             {
                 Minimum = min,
                 Maximum = max,
-                Value = defVal,
-                TickFrequency = Math.Max(1, (max - min) / 10),
+                Value = val,
                 TickStyle = TickStyle.None,
-                Dock = DockStyle.Top,
-                Height = 28,
-                BackColor = Color.FromArgb(35, 35, 38),
+                Location = new Point(x, y),
+                Size = new Size(w, 26),
+                BackColor = Color.FromArgb(34, 34, 38),
             };
-            trk.ValueChanged += handler;
+        }
 
-            return (lblName, lblVal, trk);
+        private static Panel MkSep(int x, int y, int w)
+        {
+            return new Panel
+            {
+                Location = new Point(x, y),
+                Size = new Size(w, 1),
+                BackColor = Color.FromArgb(58, 58, 68),
+            };
         }
     }
 }
