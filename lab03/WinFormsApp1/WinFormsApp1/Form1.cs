@@ -15,20 +15,20 @@ namespace WinFormsApp1
 
         // ── Симуляция ─────────────────────────────────────────────────────────
         private ForestAutomaton _automaton;
-        // Инициализируем как поле — InitializeComponent() вызывает обработчики
-        // слайдеров, которые пишут в _params. Без field init будет NullReferenceException.
+        // field init: _params создаётся ДО InitializeComponent(),
+        // поэтому обработчики слайдеров в Designer.cs не дают NullReferenceException
         private SimulationParams _params = new SimulationParams();
         private Bitmap _backBuffer;
         private System.Windows.Forms.Timer _timer;
         private bool _running;
 
         // ── Кисть ────────────────────────────────────────────────────────────
-        private CellType _brushType = CellType.Fire;
+        private int _brushIdx = 7;   // По умолчанию: Fire L1
         private BrushSize _brushSize = BrushSize.Single;
         private bool _mouseDown;
         private int _lastRow = -1, _lastCol = -1;
 
-        // ── UI-поля (объявлены здесь, строятся в Designer.cs) ────────────────
+        // ── UI (объявлены здесь, строятся в Designer.cs) ─────────────────────
         private SimulationPanel _renderPanel;
         private Panel _rightPanel;
         private Button _btnStartPause;
@@ -36,7 +36,7 @@ namespace WinFormsApp1
         private Button _btnRegen;
         private Button _btnClearAll;
         private Button[] _sizeBtns = new Button[3];
-        private Button[] _brushBtns = new Button[8];
+        private Button[] _brushBtns = new Button[9];   // 9 типов кисти
         private Panel _sizePanel;
         private Panel _brushTypePanel;
         private TrackBar _trkSpeed, _trkLightning, _trkGrowth;
@@ -51,7 +51,7 @@ namespace WinFormsApp1
 
         public Form1()
         {
-            InitializeComponent(); // _params уже создан как поле
+            InitializeComponent();
 
             _automaton = new ForestAutomaton(GridRows, GridCols);
             _backBuffer = new Bitmap(
@@ -60,28 +60,26 @@ namespace WinFormsApp1
 
             _automaton.RenderTo(_backBuffer, CellSize);
             BuildBrushButtons();
-            SelectBrushType(7);  // Огонь по умолчанию
-            SelectBrushSize(0);  // Одна клетка
+            SelectBrushType(_brushIdx);
+            SelectBrushSize(0);
             UpdateStatus();
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  ПОСТРОЕНИЕ КНОПОК КИСТИ (после InitializeComponent, панели уже есть)
+        //  КНОПКИ КИСТИ
         // ══════════════════════════════════════════════════════════════════════
 
         private void BuildBrushButtons()
         {
-            // ── Размеры кисти ────────────────────────────────────────────────
-            string[] sizeLabels = { "▪  1×1", "✚  3×3", "⊕  5×5" };
-            int panW = _sizePanel.Width;
-            int bw = (panW / 3) - 2;
-
+            // ── Размер кисти ─────────────────────────────────────────────────
+            string[] szLabels = { "▪  1×1", "✚  3×3", "⊕  5×5" };
+            int bw = (_sizePanel.Width / 3) - 2;
             for (int i = 0; i < 3; i++)
             {
                 int idx = i;
                 var btn = new Button
                 {
-                    Text = sizeLabels[i],
+                    Text = szLabels[i],
                     Location = new Point(i * (bw + 3), 0),
                     Size = new Size(bw, 30),
                     FlatStyle = FlatStyle.Flat,
@@ -96,26 +94,29 @@ namespace WinFormsApp1
                 _sizePanel.Controls.Add(btn);
             }
 
-            // ── Типы кисти ───────────────────────────────────────────────────
-            var brushDefs = new (CellType t, string label, Color color)[]
+            // ── Тип кисти (9 штук) ───────────────────────────────────────────
+            // Индексы:  0=Rock  1=Water  2=Empty  3=Ash  4=Grass  5=YoungTree
+            //           6=AdultTree  7=FireL1  8=FireL2
+            var defs = new (string label, Color color)[]
             {
-                (CellType.Rock,      "■  Камень",         Color.FromArgb(118, 112, 108)),
-                (CellType.Water,     "≈  Вода",           Color.FromArgb(28, 136, 240)),
-                (CellType.Empty,     "□  Пусто / ластик", Color.FromArgb(185, 170, 140)),
-                (CellType.Ash,       "•  Пепел",          Color.FromArgb(105, 95, 80)),
-                (CellType.Grass,     "░  Трава",          Color.FromArgb(148, 202, 46)),
-                (CellType.YoungTree, "▲  Молодой лес",    Color.FromArgb(34, 139, 34)),
-                (CellType.AdultTree, "▲  Взрослый лес",   Color.FromArgb(0, 100, 0)),
-                (CellType.Fire,      "🔥  Огонь",         Color.FromArgb(255, 120, 0)),
+                ("■  Камень",           Color.FromArgb(118, 112, 108)),
+                ("≈  Вода",             Color.FromArgb(28,  136, 240)),
+                ("□  Пусто / ластик",   Color.FromArgb(185, 170, 140)),
+                ("•  Пепел",            Color.FromArgb(105,  95,  80)),
+                ("░  Трава",            Color.FromArgb(148, 202,  46)),
+                ("▲  Молодые деревья",  Color.FromArgb( 34, 139,  34)),
+                ("▲  Взрослый лес",     Color.FromArgb(  0, 100,   0)),
+                ("🔥  Огонь  L1",       Color.FromArgb(220,  80,   0)),
+                ("🔥  Огонь  L2",       Color.FromArgb(255, 200,   0)),
             };
 
-            for (int i = 0; i < brushDefs.Length; i++)
+            for (int i = 0; i < defs.Length; i++)
             {
                 int idx = i;
-                Color sw = brushDefs[i].color;
+                Color sw = defs[i].color;
                 var btn = new Button
                 {
-                    Text = brushDefs[i].label,
+                    Text = defs[i].label,
                     Location = new Point(0, i * 30),
                     Size = new Size(_brushTypePanel.Width, 28),
                     TextAlign = ContentAlignment.MiddleLeft,
@@ -147,7 +148,7 @@ namespace WinFormsApp1
             _running = true;
             _timer.Start();
             _btnStartPause.Text = "⏸  Пауза";
-            _btnStartPause.BackColor = Color.FromArgb(165, 65, 30);
+            _btnStartPause.BackColor = Color.FromArgb(165, 60, 28);
             _btnStep.Enabled = false;
             UpdateStatus();
         }
@@ -162,6 +163,8 @@ namespace WinFormsApp1
             UpdateStatus();
         }
 
+        // ── Обработчики кнопок ───────────────────────────────────────────────
+
         private void BtnStartPause_Click(object sender, EventArgs e)
         {
             if (_running) Pause(); else Start();
@@ -169,13 +172,14 @@ namespace WinFormsApp1
 
         private void BtnStep_Click(object sender, EventArgs e)
         {
+            // Шаг доступен только на паузе
             if (_running) return;
             DoStep();
         }
 
         private void BtnRegen_Click(object sender, EventArgs e)
         {
-            // Всегда встаём на паузу при перегенерации карты
+            // Всегда встаём на паузу — пользователь запустит сам кнопкой Старт
             Pause();
             _automaton.InitializeRandom();
             Redraw();
@@ -183,11 +187,9 @@ namespace WinFormsApp1
 
         private void BtnClearAll_Click(object sender, EventArgs e)
         {
-            bool was = _running;
             Pause();
             _automaton.ClearAll();
             Redraw();
-            // Очистка не восстанавливает симуляцию автоматически — пользователь сам решает
         }
 
         private void Timer_Tick(object sender, EventArgs e) => DoStep();
@@ -206,7 +208,7 @@ namespace WinFormsApp1
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  КИСТЬ
+        //  ВЫБОР КИСТИ
         // ══════════════════════════════════════════════════════════════════════
 
         private void SelectBrushSize(int idx)
@@ -214,46 +216,41 @@ namespace WinFormsApp1
             _brushSize = (BrushSize)idx;
             for (int i = 0; i < _sizeBtns.Length; i++)
             {
-                bool on = (i == idx);
+                bool on = i == idx;
                 _sizeBtns[i].BackColor = on
-                    ? Color.FromArgb(72, 72, 108) : Color.FromArgb(50, 50, 58);
+                    ? Color.FromArgb(68, 68, 105) : Color.FromArgb(50, 50, 58);
                 _sizeBtns[i].FlatAppearance.BorderColor = on
-                    ? Color.FromArgb(145, 125, 220) : Color.FromArgb(70, 70, 82);
+                    ? Color.FromArgb(140, 120, 220) : Color.FromArgb(70, 70, 82);
             }
         }
 
         private void SelectBrushType(int idx)
         {
-            CellType[] map =
-            {
-                CellType.Rock, CellType.Water, CellType.Empty, CellType.Ash,
-                CellType.Grass, CellType.YoungTree, CellType.AdultTree, CellType.Fire
-            };
-            _brushType = map[idx];
-
+            _brushIdx = idx;
             for (int i = 0; i < _brushBtns.Length; i++)
             {
-                bool on = (i == idx);
+                bool on = i == idx;
                 _brushBtns[i].FlatAppearance.BorderColor = on
-                    ? Color.FromArgb(230, 190, 55) : Color.FromArgb(60, 60, 70);
+                    ? Color.FromArgb(230, 190, 50) : Color.FromArgb(60, 60, 70);
                 _brushBtns[i].FlatAppearance.BorderSize = on ? 2 : 1;
                 _brushBtns[i].BackColor = on
-                    ? Color.FromArgb(58, 56, 38) : Color.FromArgb(44, 44, 50);
+                    ? Color.FromArgb(56, 52, 34) : Color.FromArgb(44, 44, 50);
             }
         }
 
         private CellState MakeBrushState()
         {
-            switch (_brushType)
+            switch (_brushIdx)
             {
-                case CellType.Rock: return RockState.Instance;
-                case CellType.Water: return WaterState.Instance;
-                case CellType.Empty: return EmptyState.Instance;
-                case CellType.Ash: return new AshState(_params.AshDuration);
-                case CellType.Grass: return new GrassState();
-                case CellType.YoungTree: return new YoungTreeState();
-                case CellType.AdultTree: return new AdultTreeState();
-                case CellType.Fire: return new FireState(2);
+                case 0: return RockState.Instance;
+                case 1: return WaterState.Instance;
+                case 2: return EmptyState.Instance;
+                case 3: return new AshState(_params.AshDuration);
+                case 4: return new GrassState();
+                case 5: return new YoungTreeState();
+                case 6: return new AdultTreeState();
+                case 7: return new FireState(1);   // Огонь L1
+                case 8: return new FireState(2);   // Огонь L2
                 default: return EmptyState.Instance;
             }
         }
@@ -281,7 +278,7 @@ namespace WinFormsApp1
         {
             var (row, col) = _automaton.PixelToCell(px, py, CellSize);
             CellState state = btn == MouseButtons.Right
-                ? EmptyState.Instance
+                ? EmptyState.Instance       // ПКМ — всегда ластик
                 : MakeBrushState();
 
             if (_lastRow >= 0)
@@ -297,7 +294,7 @@ namespace WinFormsApp1
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  СЛАЙДЕРЫ — изменяют параметры в реальном времени
+        //  СЛАЙДЕРЫ — live update параметров
         // ══════════════════════════════════════════════════════════════════════
 
         private void TrkSpeed_ValueChanged(object sender, EventArgs e)
@@ -334,19 +331,19 @@ namespace WinFormsApp1
         private void TrkLongRange_ValueChanged(object sender, EventArgs e)
         {
             double v = _trkLongRange.Value * 0.01;
-            _params.LongRangeLevel2 = v;
-            _params.LongRangeLevel1 = v * 0.40;
+            _params.LongRangeL2 = v;
+            _params.LongRangeL1 = v * 0.36;
             if (_lblLongRangeVal != null)
-                _lblLongRangeVal.Text =
-                    $"L1:{_params.LongRangeLevel1 * 100:F0}% / L2:{v * 100:F0}%";
+                _lblLongRangeVal.Text = $"L1:{_params.LongRangeL1 * 100:F0}%  L2:{v * 100:F0}%";
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  РЕНДЕРИНГ ПАНЕЛИ (Paint = просто blit backbuffer)
+        //  РЕНДЕР ПАНЕЛИ
         // ══════════════════════════════════════════════════════════════════════
 
         private void RenderPanel_Paint(object sender, PaintEventArgs e)
         {
+            // Только blit готового backbuffer — минимум работы в Paint
             e.Graphics.DrawImageUnscaled(_backBuffer, Point.Empty);
         }
 
@@ -379,10 +376,9 @@ namespace WinFormsApp1
                 _lblGeneration.Text = $"Поколение: {_automaton?.Generation:N0}";
             if (_lblStatus != null)
             {
-                string st = _running ? "▶  Симуляция" : "⏸  Пауза";
-                _lblStatus.Text =
-                    $"{st}   Поколение: {_automaton?.Generation:N0}   " +
-                    "ЛКМ — кисть  ПКМ — ластик  Пробел — старт/пауза  R — новая карта  1/2/3 — размер кисти";
+                _lblStatus.Text = (_running ? "▶  Симуляция" : "⏸  Пауза") +
+                    $"   Gen: {_automaton?.Generation:N0}" +
+                    "   ЛКМ — кисть   ПКМ — ластик   Пробел — старт/пауза   R — новая карта   1/2/3 — кисть";
             }
         }
 
@@ -395,13 +391,9 @@ namespace WinFormsApp1
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  ПАНЕЛЬ С АППАРАТНЫМ ДВОЙНЫМ БУФЕРОМ
+    //  SimulationPanel — панель с аппаратным двойным буфером
     // ══════════════════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Устраняет мерцание при высокочастотной перерисовке.
-    /// Стандартный Panel.DoubleBuffered не публичен — нужен подкласс.
-    /// </summary>
     public class SimulationPanel : Panel
     {
         public SimulationPanel()

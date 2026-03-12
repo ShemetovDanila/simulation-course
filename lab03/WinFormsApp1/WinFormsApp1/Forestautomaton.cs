@@ -6,24 +6,16 @@ namespace WinFormsApp1
 {
     public enum BrushSize { Single = 0, Cross = 1, Circle = 2 }
 
-    /// <summary>
-    /// Клеточный автомат «Лесной пожар».
-    /// Двойная буферизация: _current → читаем, _next → пишем, затем swap (O(1)).
-    /// </summary>
+    // двумерный КА с двойной буферизацией (_current / _next swap)
     public class ForestAutomaton
     {
-        // ── Паттерны кисти ────────────────────────────────────────────────────
         private static readonly (int dr, int dc)[][] Patterns =
         {
-            new[] { (0,0) },  // Single
-            new[] { (0,0),(-1,0),(1,0),(0,-1),(0,1) },   // Cross 3×3
-            new[]             // Circle ~r2 (13 cells)
-            {
-                (0,0),
-                (-1,0),(1,0),(0,-1),(0,1),
-                (-1,-1),(-1,1),(1,-1),(1,1),
-                (-2,0),(2,0),(0,-2),(0,2)
-            }
+            new[] { (0,0) },
+            new[] { (0,0),(-1,0),(1,0),(0,-1),(0,1) },
+            new[] { (0,0), (-1,0),(1,0),(0,-1),(0,1),
+                    (-1,-1),(-1,1),(1,-1),(1,1),
+                    (-2,0),(2,0),(0,-2),(0,2) }
         };
 
         private CellState[,] _current;
@@ -43,9 +35,8 @@ namespace WinFormsApp1
             InitializeRandom();
         }
 
-        // ── Инициализация ─────────────────────────────────────────────────────
+        // ── Генерация ─────────────────────────────────────────────────────────
 
-        /// <summary>Случайный лесной ландшафт без огня.</summary>
         public void InitializeRandom()
         {
             Generation = 0;
@@ -53,35 +44,38 @@ namespace WinFormsApp1
                 for (int c = 0; c < Cols; c++)
                 {
                     double v = _rng.NextDouble();
-                    bool water = _rng.NextDouble() < 0.04;
-                    if (v < 0.05) _current[r, c] = RockState.Instance;
-                    else if (water) _current[r, c] = WaterState.Instance;
-                    else if (v < 0.10) _current[r, c] = new GrassState(_rng.Next(35));
-                    else if (v < 0.26) _current[r, c] = new YoungTreeState(_rng.Next(55));
-                    else _current[r, c] = new AdultTreeState(_rng.Next(75));
+                    if (v < 0.02) _current[r, c] = RockState.Instance;
+                    else if (v < 0.05) _current[r, c] = WaterState.Instance;   // 3% — расширим кластерами
+                    else if (v < 0.08) _current[r, c] = new GrassState(_rng.Next(30));
+                    else if (v < 0.23) _current[r, c] = new YoungTreeState(_rng.Next(50));
+                    else _current[r, c] = new AdultTreeState(_rng.Next(70));
                 }
-            SmoothWater();
+            SmoothWater(); // превращаем одиночные клетки воды в небольшие реки/озёра
         }
 
         private void SmoothWater()
         {
+            // сначала находим водные клетки, затем случайно расширяем их
+            var seeds = new System.Collections.Generic.List<(int r, int c)>();
             for (int r = 0; r < Rows; r++)
                 for (int c = 0; c < Cols; c++)
-                {
-                    if (_current[r, c].Type != CellType.Water) continue;
-                    for (int dr = -1; dr <= 1; dr++)
-                        for (int dc = -1; dc <= 1; dc++)
-                        {
-                            int nr = r + dr, nc = c + dc;
-                            if (nr >= 0 && nr < Rows && nc >= 0 && nc < Cols
-                                && _current[nr, nc].Type != CellType.Rock
-                                && _rng.NextDouble() < 0.55)
-                                _current[nr, nc] = WaterState.Instance;
-                        }
-                }
+                    if (_current[r, c].Type == CellType.Water) seeds.Add((r, c));
+
+            foreach (var (sr, sc) in seeds)
+            {
+                for (int dr = -1; dr <= 1; dr++)
+                    for (int dc = -1; dc <= 1; dc++)
+                    {
+                        int nr = sr + dr, nc = sc + dc;
+                        if (nr >= 0 && nr < Rows && nc >= 0 && nc < Cols
+                            && _current[nr, nc].Type != CellType.Rock
+                            && _rng.NextDouble() < 0.50)
+                            _current[nr, nc] = WaterState.Instance;
+                    }
+            }
         }
 
-        /// <summary>Полная очистка — все клетки пустые.</summary>
+        // полная очистка — все клетки пустые 
         public void ClearAll()
         {
             Generation = 0;
@@ -90,7 +84,7 @@ namespace WinFormsApp1
                     _current[r, c] = EmptyState.Instance;
         }
 
-        // ── Шаг ──────────────────────────────────────────────────────────────
+        // ── Шаг симуляции ────────────────────────────────────────────────────
 
         public void Step(SimulationParams p)
         {
@@ -98,10 +92,7 @@ namespace WinFormsApp1
                 for (int c = 0; c < Cols; c++)
                     _next[r, c] = _current[r, c].ComputeNextState(_current, r, c, _rng, p);
 
-            // Swap без копирования O(1)
-            CellState[,] tmp = _current;
-            _current = _next;
-            _next = tmp;
+            CellState[,] tmp = _current; _current = _next; _next = tmp;
             Generation++;
         }
 
@@ -139,7 +130,6 @@ namespace WinFormsApp1
 
         // ── Рендер ───────────────────────────────────────────────────────────
 
-        /// <summary>Отрисовывает весь грид в Bitmap. Единственная SolidBrush на весь вызов.</summary>
         public void RenderTo(Bitmap bmp, int cellSize)
         {
             using (var g = Graphics.FromImage(bmp))

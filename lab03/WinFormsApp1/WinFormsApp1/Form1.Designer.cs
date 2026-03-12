@@ -14,19 +14,14 @@ namespace WinFormsApp1
             base.Dispose(disposing);
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        //  ПОСТРОЕНИЕ UI — явные координаты, без путаницы DockStyle.Top
-        // ══════════════════════════════════════════════════════════════════════
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
 
-            // ── Таймер ────────────────────────────────────────────────────────
             _timer = new System.Windows.Forms.Timer(components);
             _timer.Interval = 100;
             _timer.Tick += Timer_Tick;
 
-            // ── Форма ─────────────────────────────────────────────────────────
             Text = "ForestFire";
             BackColor = Color.FromArgb(28, 28, 30);
             ForeColor = Color.FromArgb(220, 220, 220);
@@ -37,37 +32,36 @@ namespace WinFormsApp1
             AutoScaleMode = AutoScaleMode.None;
             KeyPreview = true;
 
-            const int renderW = GridCols * CellSize;  // 800
-            const int renderH = GridRows * CellSize;  // 600
-            const int panelW = 230;
+            const int renderW = GridCols * CellSize;   // 800
+            const int renderH = GridRows * CellSize;   // 600
+            const int panelW = 232;
             const int statusH = 26;
-            const int innerW = 210;  // ширина контролов внутри правой панели
-            const int lx = 8;    // левый отступ в правой панели
+            const int lx = 8;
+            const int iw = 212;   // ширина контролов в правой панели
 
             ClientSize = new Size(renderW + panelW, renderH + statusH);
 
             // ══════════════════════════════════════════════════════════════════
-            //  СТРОКА СТАТУСА
+            //  СТАТУС-БАР
             // ══════════════════════════════════════════════════════════════════
-            Panel statusBar = new Panel
+            var statusBar = new Panel
             {
                 Height = statusH,
                 Dock = DockStyle.Bottom,
                 BackColor = Color.FromArgb(20, 20, 22),
-                Padding = new Padding(8, 0, 0, 0),
             };
             _lblStatus = new Label
             {
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Color.FromArgb(140, 140, 150),
-                Font = new Font("Segoe UI", 7.6f),
-                Text = "⏸  Пауза",
+                ForeColor = Color.FromArgb(138, 138, 150),
+                Font = new Font("Segoe UI", 7.5f),
+                Padding = new Padding(8, 0, 0, 0),
             };
             statusBar.Controls.Add(_lblStatus);
 
             // ══════════════════════════════════════════════════════════════════
-            //  ПРАВАЯ ПАНЕЛЬ — ScrollPanel с явными Y-позициями
+            //  ПРАВАЯ ПАНЕЛЬ — AutoScroll, явные Y
             // ══════════════════════════════════════════════════════════════════
             _rightPanel = new Panel
             {
@@ -77,173 +71,152 @@ namespace WinFormsApp1
                 AutoScroll = true,
             };
 
-            // Внутренний контейнер для AutoScroll
-            Panel inner = new Panel
+            // Внутренний контейнер (нужен для корректного AutoScroll)
+            var inner = new Panel
             {
                 Width = panelW - SystemInformation.VerticalScrollBarWidth - 2,
                 BackColor = Color.Transparent,
             };
             _rightPanel.Controls.Add(inner);
 
-            // Счётчик Y для расположения контролов
-            int y = 8;
+            int y = 6;
 
             // ── Заголовок ─────────────────────────────────────────────────────
-            inner.Controls.Add(MkLabel("🌲  ForestFire", lx, y, innerW, 32,
-                Color.FromArgb(210, 172, 60), new Font("Segoe UI", 10.5f, FontStyle.Bold),
+            inner.Controls.Add(Lbl("🌲  ForestFire", lx, y, iw, 32,
+                Color.FromArgb(210, 172, 60),
+                new Font("Segoe UI", 10.5f, FontStyle.Bold),
                 ContentAlignment.MiddleCenter));
             y += 38;
 
             // ══════════════════════════════════════════════════════════════════
-            //  СЕКЦИЯ: СИМУЛЯЦИЯ
+            //  СИМУЛЯЦИЯ
             // ══════════════════════════════════════════════════════════════════
-            inner.Controls.Add(MkSection("СИМУЛЯЦИЯ", lx, y, innerW)); y += 22;
+            inner.Controls.Add(SecHdr("СИМУЛЯЦИЯ", lx, y, iw)); y += 21;
 
-            _btnStartPause = MkBtn("▶  Старт", Color.FromArgb(38, 130, 60), lx, y, innerW, 34);
+            _btnStartPause = Btn("▶  Старт", Color.FromArgb(38, 130, 60), lx, y, iw, 34);
             _btnStartPause.Click += BtnStartPause_Click;
-            inner.Controls.Add(_btnStartPause);
-            y += 38;
+            inner.Controls.Add(_btnStartPause); y += 38;
 
-            int halfW = (innerW / 2) - 3;
-            _btnStep = MkBtn("→  Шаг", Color.FromArgb(40, 72, 135),
-                             lx, y, halfW, 30);
+            int hw = (iw - 4) / 2;
+
+            _btnStep = Btn("→  Шаг", Color.FromArgb(40, 72, 135), lx, y, hw, 30);
             _btnStep.Click += BtnStep_Click;
             inner.Controls.Add(_btnStep);
 
-            _btnRegen = MkBtn("↺  Новая карта", Color.FromArgb(72, 52, 118),
-                              lx + halfW + 6, y, halfW, 30);
+            _btnRegen = Btn("↺  Новая карта", Color.FromArgb(72, 52, 118), lx + hw + 4, y, hw, 30);
             _btnRegen.Click += BtnRegen_Click;
             inner.Controls.Add(_btnRegen);
             y += 34;
 
-            _btnClearAll = MkBtn("⬜  Очистить всё", Color.FromArgb(80, 52, 40),
-                                 lx, y, innerW, 30);
+            _btnClearAll = Btn("⬜  Очистить всё", Color.FromArgb(78, 50, 38), lx, y, iw, 30);
             _btnClearAll.Click += BtnClearAll_Click;
-            inner.Controls.Add(_btnClearAll);
-            y += 36;
+            inner.Controls.Add(_btnClearAll); y += 36;
 
             // ── Скорость ──────────────────────────────────────────────────────
-            inner.Controls.Add(MkCaption("Скорость симуляции", lx, y, innerW)); y += 17;
-            _trkSpeed = MkTrack(1, 10, 5, lx, y, innerW);
+            inner.Controls.Add(Cap("Скорость симуляции", lx, y, iw)); y += 16;
+            _trkSpeed = Trk(1, 10, 5, lx, y, iw);
             _trkSpeed.ValueChanged += TrkSpeed_ValueChanged;
             inner.Controls.Add(_trkSpeed); y += 26;
-            _lblSpeedVal = MkValue("5", lx, y, innerW);
-            inner.Controls.Add(_lblSpeedVal); y += 16;
+            _lblSpeedVal = Val("5", lx, y, iw); inner.Controls.Add(_lblSpeedVal); y += 16;
 
-            // ── Поколение ─────────────────────────────────────────────────────
-            _lblGeneration = MkLabel("Поколение: 0", lx, y, innerW, 18,
-                Color.FromArgb(130, 200, 130), new Font("Segoe UI", 8f));
+            _lblGeneration = Lbl("Поколение: 0", lx, y, iw, 18,
+                Color.FromArgb(125, 195, 125), new Font("Segoe UI", 8f));
             inner.Controls.Add(_lblGeneration); y += 22;
 
             // ══════════════════════════════════════════════════════════════════
-            //  СЕКЦИЯ: КИСТЬ
+            //  КИСТЬ
             // ══════════════════════════════════════════════════════════════════
-            inner.Controls.Add(MkSep(lx, y, innerW)); y += 10;
-            inner.Controls.Add(MkSection("КИСТЬ", lx, y, innerW)); y += 22;
+            inner.Controls.Add(Sep(lx, y, iw)); y += 10;
+            inner.Controls.Add(SecHdr("КИСТЬ", lx, y, iw)); y += 21;
 
-            // Размер кисти
-            inner.Controls.Add(MkCaption("Размер  ( клавиши 1 / 2 / 3 )", lx, y, innerW)); y += 17;
-            _sizePanel = new Panel
-            {
-                Location = new Point(lx, y),
-                Size = new Size(innerW, 32),
-                BackColor = Color.Transparent,
-            };
+            inner.Controls.Add(Cap("Размер  ( клавиши 1 / 2 / 3 )", lx, y, iw)); y += 16;
+            _sizePanel = new Panel { Location = new Point(lx, y), Size = new Size(iw, 32), BackColor = Color.Transparent };
             inner.Controls.Add(_sizePanel); y += 36;
 
-            // Тип кисти
-            inner.Controls.Add(MkCaption("Тип  (ЛКМ — рисовать, ПКМ — ластик)", lx, y, innerW)); y += 17;
+            inner.Controls.Add(Cap("Тип  ( ЛКМ — нанести,  ПКМ — ластик )", lx, y, iw)); y += 16;
             _brushTypePanel = new Panel
             {
                 Location = new Point(lx, y),
-                Size = new Size(innerW, 8 * 30),
+                Size = new Size(iw, 9 * 30),   // 9 кнопок
                 BackColor = Color.Transparent,
             };
-            inner.Controls.Add(_brushTypePanel); y += 8 * 30 + 4;
+            inner.Controls.Add(_brushTypePanel); y += 9 * 30 + 4;
 
             // ══════════════════════════════════════════════════════════════════
-            //  СЕКЦИЯ: ПАРАМЕТРЫ
+            //  ПАРАМЕТРЫ
             // ══════════════════════════════════════════════════════════════════
-            inner.Controls.Add(MkSep(lx, y, innerW)); y += 10;
-            inner.Controls.Add(MkSection("ПАРАМЕТРЫ  (работают в реальном времени)", lx, y, innerW)); y += 22;
+            inner.Controls.Add(Sep(lx, y, iw)); y += 10;
+            inner.Controls.Add(SecHdr("ПАРАМЕТРЫ  (работают в реальном времени)", lx, y, iw)); y += 21;
 
             // Молния [f]
-            inner.Controls.Add(MkCaption("Молния / поджог  [f]", lx, y, innerW)); y += 17;
-            _trkLightning = MkTrack(0, 100, 35, lx, y, innerW);
+            inner.Controls.Add(Cap("Молния / поджог  [f]", lx, y, iw)); y += 16;
+            _trkLightning = Trk(0, 100, 35, lx, y, iw);
             _trkLightning.ValueChanged += TrkLightning_ValueChanged;
             inner.Controls.Add(_trkLightning); y += 26;
-            _lblLightningVal = MkValue("35×10⁻⁶", lx, y, innerW);
-            inner.Controls.Add(_lblLightningVal); y += 18;
+            _lblLightningVal = Val("35×10⁻⁶", lx, y, iw); inner.Controls.Add(_lblLightningVal); y += 18;
 
             // Рост [p]
-            inner.Controls.Add(MkCaption("Рост растительности  [p]", lx, y, innerW)); y += 17;
-            _trkGrowth = MkTrack(1, 200, 60, lx, y, innerW);
+            inner.Controls.Add(Cap("Рост растительности  [p]", lx, y, iw)); y += 16;
+            _trkGrowth = Trk(1, 200, 60, lx, y, iw);
             _trkGrowth.ValueChanged += TrkGrowth_ValueChanged;
             inner.Controls.Add(_trkGrowth); y += 26;
-            _lblGrowthVal = MkValue("0.60%", lx, y, innerW);
-            inner.Controls.Add(_lblGrowthVal); y += 18;
+            _lblGrowthVal = Val("0.60%", lx, y, iw); inner.Controls.Add(_lblGrowthVal); y += 18;
 
             // Удобрение пепла
-            inner.Controls.Add(MkCaption("Удобрение пепла", lx, y, innerW)); y += 17;
-            _trkAshBonus = MkTrack(0, 50, 24, lx, y, innerW);
+            inner.Controls.Add(Cap("Удобрение пепла", lx, y, iw)); y += 16;
+            _trkAshBonus = Trk(0, 50, 24, lx, y, iw);
             _trkAshBonus.ValueChanged += TrkAshBonus_ValueChanged;
             inner.Controls.Add(_trkAshBonus); y += 26;
-            _lblAshBonusVal = MkValue("+2.4%", lx, y, innerW);
-            inner.Controls.Add(_lblAshBonusVal); y += 18;
+            _lblAshBonusVal = Val("+2.4%", lx, y, iw); inner.Controls.Add(_lblAshBonusVal); y += 18;
 
             // База воспламенения
-            inner.Controls.Add(MkCaption("База воспламенения", lx, y, innerW)); y += 17;
-            _trkIgnition = MkTrack(5, 90, 45, lx, y, innerW);
+            inner.Controls.Add(Cap("База воспламенения", lx, y, iw)); y += 16;
+            _trkIgnition = Trk(5, 90, 40, lx, y, iw);
             _trkIgnition.ValueChanged += TrkIgnition_ValueChanged;
             inner.Controls.Add(_trkIgnition); y += 26;
-            _lblIgnitionVal = MkValue("45%", lx, y, innerW);
-            inner.Controls.Add(_lblIgnitionVal); y += 18;
+            _lblIgnitionVal = Val("40%", lx, y, iw); inner.Controls.Add(_lblIgnitionVal); y += 18;
 
             // Дальний огонь
-            inner.Controls.Add(MkCaption("Дальний огонь  (уровни L1 / L2)", lx, y, innerW)); y += 17;
-            _trkLongRange = MkTrack(0, 60, 30, lx, y, innerW);
+            inner.Controls.Add(Cap("Перенос искр через клетку  (L1 / L2)", lx, y, iw)); y += 16;
+            _trkLongRange = Trk(0, 60, 28, lx, y, iw);
             _trkLongRange.ValueChanged += TrkLongRange_ValueChanged;
             inner.Controls.Add(_trkLongRange); y += 26;
-            _lblLongRangeVal = MkValue("L1:12% / L2:30%", lx, y, innerW);
-            inner.Controls.Add(_lblLongRangeVal); y += 18;
+            _lblLongRangeVal = Val("L1:10%  L2:28%", lx, y, iw); inner.Controls.Add(_lblLongRangeVal); y += 18;
 
             // ══════════════════════════════════════════════════════════════════
-            //  СЕКЦИЯ: СПРАВКА
+            //  СПРАВКА
             // ══════════════════════════════════════════════════════════════════
-            inner.Controls.Add(MkSep(lx, y, innerW)); y += 10;
-            inner.Controls.Add(MkSection("СПРАВКА", lx, y, innerW)); y += 22;
+            inner.Controls.Add(Sep(lx, y, iw)); y += 10;
+            inner.Controls.Add(SecHdr("СПРАВКА", lx, y, iw)); y += 21;
 
-            string help =
-                "4 основных правила:\n" +
-                "1. Огонь → пепел после догорания\n" +
-                "2. Дерево + сосед горит → огонь\n" +
-                "3. Дерево → огонь с вероятн. f\n" +
-                "4. Пусто → растение с вероятн. p\n\n" +
-                "Доп. правила:\n" +
-                "• Вода блокирует распростр. огня\n" +
-                "• Камень — непреодолимый барьер\n" +
-                "• Пепел удобряет почву (+рост)\n" +
-                "• Уровни огня 0/1/2:\n" +
-                "  0 = трава (только соседи)\n" +
-                "  1 = молодые (+ малый дальний)\n" +
-                "  2 = взрослые (+ норм. дальний)\n\n" +
-                "Клавиши:\n" +
-                "  Пробел    Старт / Пауза\n" +
-                "  →         Шаг вперёд\n" +
-                "  R         Новая карта\n" +
-                "  C         Очистить\n" +
-                "  1 / 2 / 3 Размер кисти";
-
-            Label lblHelp = new Label
+            var help = new Label
             {
-                Text = help,
+                Text =
+                    "4 основных правила:\n" +
+                    "1. Огонь → пепел / пусто\n" +
+                    "2. Растение + сосед горит → огонь\n" +
+                    "3. Взрослое дерево → огонь  (вер. f)\n" +
+                    "4. Пусто → растительность  (вер. p)\n\n" +
+                    "Дополнительные правила:\n" +
+                    "• Камень и вода не горят\n" +
+                    "  (огонь может перелетать через них)\n" +
+                    "• Пепел — только от взрослых деревьев;\n" +
+                    "  ускоряет рост рядом (+удобрение)\n" +
+                    "• Трава и молодые → огонь L1 (слабый)\n" +
+                    "• Взрослые → огонь L2 (мощный)\n\n" +
+                    "Клавиши:\n" +
+                    "  Пробел  — Старт / Пауза\n" +
+                    "  →       — Шаг вперёд\n" +
+                    "  R       — Новая карта (→ пауза)\n" +
+                    "  C       — Очистить всё\n" +
+                    "  1/2/3   — Размер кисти",
                 Location = new Point(lx, y),
-                Size = new Size(innerW, 260),
-                ForeColor = Color.FromArgb(115, 115, 128),
+                Size = new Size(iw, 280),
+                ForeColor = Color.FromArgb(112, 112, 126),
                 Font = new Font("Segoe UI", 7.5f),
             };
-            inner.Controls.Add(lblHelp);
-            y += 265;
+            inner.Controls.Add(help);
+            y += 285;
 
             inner.Height = y + 10;
 
@@ -261,15 +234,11 @@ namespace WinFormsApp1
             _renderPanel.MouseMove += RenderPanel_MouseMove;
             _renderPanel.MouseUp += RenderPanel_MouseUp;
 
-            // ── Добавляем на форму ────────────────────────────────────────────
-            // Порядок важен: сначала Fill, потом Right, потом Bottom
             Controls.Add(_renderPanel);
             Controls.Add(_rightPanel);
             Controls.Add(statusBar);
 
-            // ── Принудительно вызываем обработчики слайдеров ─────────────────
-            // Это устанавливает правильные значения в _params и метках.
-            // _params уже создан (field init в Form1.cs), поэтому NRE не будет.
+            // Инициализируем слайдеры: _params уже создан (field init), NRE исключён
             TrkSpeed_ValueChanged(this, EventArgs.Empty);
             TrkLightning_ValueChanged(this, EventArgs.Empty);
             TrkGrowth_ValueChanged(this, EventArgs.Empty);
@@ -279,84 +248,75 @@ namespace WinFormsApp1
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  ФАБРИКИ UI-ЭЛЕМЕНТОВ
+        //  ФАБРИКИ UI — компактные вспомогательные методы
         // ══════════════════════════════════════════════════════════════════════
 
-        private static Label MkLabel(string text, int x, int y, int w, int h,
+        private static Label Lbl(string t, int x, int y, int w, int h,
             Color fore, Font font,
             ContentAlignment align = ContentAlignment.MiddleLeft)
-        {
-            return new Label
+            => new Label
             {
-                Text = text,
+                Text = t,
                 Location = new Point(x, y),
                 Size = new Size(w, h),
                 ForeColor = fore,
                 Font = font,
-                TextAlign = align,
+                TextAlign = align
             };
-        }
 
-        private static Label MkSection(string text, int x, int y, int w)
-        {
-            return new Label
+        private static Label SecHdr(string t, int x, int y, int w)
+            => new Label
             {
-                Text = text,
+                Text = t,
                 Location = new Point(x, y),
                 Size = new Size(w, 20),
-                ForeColor = Color.FromArgb(188, 148, 52),
-                Font = new Font("Segoe UI", 8f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(190, 148, 50),
+                Font = new Font("Segoe UI", 8f, FontStyle.Bold)
             };
-        }
 
-        private static Label MkCaption(string text, int x, int y, int w)
-        {
-            return new Label
+        private static Label Cap(string t, int x, int y, int w)
+            => new Label
             {
-                Text = text,
+                Text = t,
                 Location = new Point(x, y),
-                Size = new Size(w, 16),
-                ForeColor = Color.FromArgb(170, 170, 182),
-                Font = new Font("Segoe UI", 7.5f),
+                Size = new Size(w, 15),
+                ForeColor = Color.FromArgb(165, 165, 178),
+                Font = new Font("Segoe UI", 7.5f)
             };
-        }
 
-        private static Label MkValue(string text, int x, int y, int w)
-        {
-            return new Label
+        private static Label Val(string t, int x, int y, int w)
+            => new Label
             {
-                Text = text,
+                Text = t,
                 Location = new Point(x + 2, y),
-                Size = new Size(w, 16),
+                Size = new Size(w, 15),
                 ForeColor = Color.FromArgb(105, 195, 115),
-                Font = new Font("Consolas", 7.5f),
+                Font = new Font("Consolas", 7.5f)
             };
-        }
 
-        private static Button MkBtn(string text, Color color, int x, int y, int w, int h)
+        private static Button Btn(string t, Color c, int x, int y, int w, int h)
         {
-            Color baseColor = color;
-            var btn = new Button
+            Color bc = c;
+            var b = new Button
             {
-                Text = text,
+                Text = t,
                 Location = new Point(x, y),
                 Size = new Size(w, h),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = baseColor,
+                BackColor = bc,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 Cursor = Cursors.Hand,
             };
-            btn.FlatAppearance.BorderColor = ControlPaint.Dark(baseColor, 0.2f);
-            btn.FlatAppearance.BorderSize = 1;
-            btn.MouseEnter += (s, e) => ((Button)s).BackColor = ControlPaint.Light(baseColor, 0.18f);
-            btn.MouseLeave += (s, e) => ((Button)s).BackColor = baseColor;
-            return btn;
+            b.FlatAppearance.BorderColor = ControlPaint.Dark(bc, 0.2f);
+            b.FlatAppearance.BorderSize = 1;
+            b.MouseEnter += (s, e) => ((Button)s).BackColor = ControlPaint.Light(bc, 0.18f);
+            b.MouseLeave += (s, e) => ((Button)s).BackColor = bc;
+            return b;
         }
 
-        private static TrackBar MkTrack(int min, int max, int val, int x, int y, int w)
-        {
-            return new TrackBar
+        private static TrackBar Trk(int min, int max, int val, int x, int y, int w)
+            => new TrackBar
             {
                 Minimum = min,
                 Maximum = max,
@@ -364,18 +324,15 @@ namespace WinFormsApp1
                 TickStyle = TickStyle.None,
                 Location = new Point(x, y),
                 Size = new Size(w, 26),
-                BackColor = Color.FromArgb(34, 34, 38),
+                BackColor = Color.FromArgb(34, 34, 38)
             };
-        }
 
-        private static Panel MkSep(int x, int y, int w)
-        {
-            return new Panel
+        private static Panel Sep(int x, int y, int w)
+            => new Panel
             {
                 Location = new Point(x, y),
                 Size = new Size(w, 1),
-                BackColor = Color.FromArgb(58, 58, 68),
+                BackColor = Color.FromArgb(56, 56, 68)
             };
-        }
     }
 }
