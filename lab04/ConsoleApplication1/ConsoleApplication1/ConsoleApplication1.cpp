@@ -28,7 +28,7 @@ int main()
     int seed;
     cout << "Введите начальное зерно (int): ";
 
-    cin >> seed;
+    if (!(cin >> seed)) seed = INT_MAX / 2;
 
     x_mult = seed;
     x_mid = seed % 10000;
