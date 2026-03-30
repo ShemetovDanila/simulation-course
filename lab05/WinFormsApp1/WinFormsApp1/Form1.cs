@@ -44,7 +44,7 @@ namespace WinFormsApp1
             yesNoOutcomes = new List<(string name, double probability)>
             {
                 ("Да", 0.77),
-                ("Нет, идём поднимать рейтинг в 2с, ВароПал, 2к->2.5к, чардж+бш=покинуть тело", 0.23)
+                ("Нет, идём поднимать рейтинг в \n 2с, ВароПал, 2к->2.5к, \n чардж+бш=покинуть тело", 0.23)
             };
 
             NormalizeProbabilities(yesNoOutcomes);
@@ -72,14 +72,14 @@ namespace WinFormsApp1
         private void NormalizeProbabilities(List<(string name, double probability)> items)
         {
             double sum = 0;
-            for (int i = 0; i < classProbabilities.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
-                sum += classProbabilities[i].probability;
+                sum += items[i].probability;
             }
 
             if (sum != 1)                                       // Можно сделать: Math.Abs(sum - 1.0) > 0.0001 если можем допустить погрешность
             {
-                for (int i = 0; i < classProbabilities.Count; i++)
+                for (int i = 0; i < items.Count; i++)
                 {
                     items[i] = (items[i].name, items[i].probability / sum);
                 }
