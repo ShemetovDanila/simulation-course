@@ -32,53 +32,14 @@ namespace lab6_p2
             ClearLabels();
         }
 
-        private double[] BuildNormalHistogram(double mean, double sigma,
-                                              out double[] xs, out double[] ys)
+        // Метод Бокса-Мюллера
+        private double GenerateNormal(MultRandom rng, double mean, double sigma)
         {
-            // Покрываем диапазон [mean - 4σ, mean + 4σ]
-            int bins = 8;
-            double lo = mean - 4 * sigma;
-            double hi = mean + 4 * sigma;
-            double width = (hi - lo) / bins;
-
-            xs = new double[bins + 1];   // границы интервалов x_0 .. x_bins
-            ys = new double[bins];       // высоты (плотности) y_1 .. y_bins
-
-            for (int i = 0; i <= bins; i++)
-                xs[i] = lo + i * width;
-
-            // y_k = плотность нормального распределения в середине k-го интервала
-            // Нормируем так, чтобы сумма y_k * (x_k - x_{k-1}) = 1
-            for (int k = 0; k < bins; k++)
-            {
-                double mid = (xs[k] + xs[k + 1]) / 2.0;
-                ys[k] = NormalPDF(mid, mean, sigma);
-            }
-
-            return ys;
-        }
-
-        // Генерация одного значения методом гистограммы
-        private double GenerateByHistogram(MultRandom rng,
-                                           double[] xs, double[] ys)
-        {
-            double alpha = rng.Next();   // равномерное α ∈ (0,1)
-            double M = alpha;
-            int k = 0;
-
-            // M := M - y_k * (x_k - x_{k-1}), пока M >= 0
-            while (k < ys.Length)
-            {
-                double delta = ys[k] * (xs[k + 1] - xs[k]);
-                M -= delta;
-                if (M < 0)
-                {
-                    // ξ = x_k + M / y_k   (M уже отрицательное → добавляем)
-                    return xs[k + 1] + M / ys[k];
-                }
-                k++;
-            }
-            return xs[ys.Length]; // край диапазона (крайне редко)
+            double u1 = rng.Next();
+            double u2 = rng.Next();
+            if (u1 < 1e-12) u1 = 1e-12;
+            double z = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+            return mean + sigma * z;
         }
 
         // Плотность нормального распределения
@@ -86,6 +47,12 @@ namespace lab6_p2
         {
             return (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
                    Math.Exp(-0.5 * Math.Pow((x - mean) / sigma, 2));
+        }
+
+        // Формула Стёрджеса: k = ceil(log2(n)) + 1
+        private int SturgessBins(int n)
+        {
+            return (int)Math.Ceiling(Math.Log(n, 2)) + 1;
         }
 
 
@@ -109,14 +76,32 @@ namespace lab6_p2
 
             double sigma = Math.Sqrt(variance);
 
-            // Строим гистограмму нормального распределения
-            BuildNormalHistogram(mean, sigma, out double[] xs, out double[] ys);
-
-            // Генерируем выборку методом гистограммы
+            // Генерация выборки методом Бокса-Мюллера
             var rng = new MultRandom(DateTime.Now.Ticks % int.MaxValue);
             double[] sample = new double[N];
             for (int i = 0; i < N; i++)
-                sample[i] = GenerateByHistogram(rng, xs, ys);
+                sample[i] = GenerateNormal(rng, mean, sigma);
+
+            // Число бинов по формуле Стёрджеса
+            int bins = SturgessBins(N);
+
+            double xMin = sample.Min();
+            double xMax = sample.Max();
+            double binWidth = (xMax - xMin) / bins;
+
+            // Границы интервалов
+            double[] xs = new double[bins + 1];
+            for (int i = 0; i <= bins; i++)
+                xs[i] = xMin + i * binWidth;
+
+            // Подсчёт наблюдений в каждом бине
+            int[] observed = new int[bins];
+            foreach (double val in sample)
+            {
+                int idx = (int)((val - xMin) / binWidth);
+                if (idx >= bins) idx = bins - 1;
+                observed[idx]++;
+            }
 
             // Выборочное среднее и дисперсия
             double sampleMean = sample.Average();
@@ -127,24 +112,22 @@ namespace lab6_p2
                 : Math.Abs(sampleMean) * 100;
             double varError = Math.Abs((sampleVar - variance) / variance) * 100;
 
-            // Хи-квадрат по тем же бинам гистограммы
-            int bins = xs.Length - 1;
-            int[] observed = new int[bins];
-            foreach (double val in sample)
-            {
-                for (int i = 0; i < bins; i++)
-                {
-                    if (val >= xs[i] && (i == bins - 1 ? val <= xs[i + 1] : val < xs[i + 1]))
-                    { observed[i]++; break; }
-                }
-            }
-
+            // Хи-квадрат
             double chiSq = 0;
             int dfCount = 0;
             for (int i = 0; i < bins; i++)
             {
-                // Ожидаемое число = N * y_k * ширина
-                double expected = N * ys[i] * (xs[i + 1] - xs[i]);
+                // Интегрируем PDF по интервалу методом трапеций
+                int steps = 200;
+                double h = binWidth / steps;
+                double integral = 0;
+                for (int s = 0; s <= steps; s++)
+                {
+                    double xv = xs[i] + s * h;
+                    double w = (s == 0 || s == steps) ? 0.5 : 1.0;
+                    integral += w * NormalPDF(xv, mean, sigma) * h;
+                }
+                double expected = N * integral;
                 if (expected >= 1)
                 {
                     chiSq += Math.Pow(observed[i] - expected, 2) / expected;
@@ -161,19 +144,17 @@ namespace lab6_p2
             label6.Text = $"Chi-squared: {chiSq:F2} > {chiCritical:F3}  is {(reject ? "true" : "false")}";
             label6.ForeColor = reject ? System.Drawing.Color.Red : System.Drawing.Color.Green;
 
-            DrawChart(sample, mean, sigma, xs, ys);
+            DrawChart(sample, mean, sigma, xs, observed, binWidth, N);
         }
 
         private void DrawChart(double[] sample, double mean, double sigma,
-                               double[] xs, double[] ys)
+                               double[] xs, int[] observed, double binWidth, int N)
         {
             chart1.Series.Clear();
             chart1.ChartAreas.Clear();
             chart1.Legends.Clear();
 
             var area = chart1.ChartAreas.Add("main");
-            area.AxisX.LabelStyle.Format = "0.#";
-            area.AxisX.LabelStyle.Angle = 0;
             area.AxisY.Minimum = 0;
             area.AxisY.LabelStyle.Format = "0.##";
             area.AxisX.MajorGrid.LineColor = System.Drawing.Color.LightGray;
@@ -181,9 +162,8 @@ namespace lab6_p2
             area.AxisX.IsMarginVisible = false;
 
             int bins = xs.Length - 1;
-            double binWidth = xs[1] - xs[0];
 
-            // --- Гистограмма: эмпирическая плотность ---
+            // --- Гистограмма ---
             var histSeries = new Series("Hist")
             {
                 ChartType = SeriesChartType.Column,
@@ -197,38 +177,28 @@ namespace lab6_p2
 
             for (int i = 0; i < bins; i++)
             {
-                int count = sample.Count(x =>
-                    x >= xs[i] && (i == bins - 1 ? x <= xs[i + 1] : x < xs[i + 1]));
-                double density = (double)count / (sample.Length * binWidth);
-
+                double density = (double)observed[i] / (N * binWidth);
                 histSeries.Points.AddXY(i + 1, density);
-
-                // Подпись вида "(-3; -2]" на оси X
-                string loBracket = i == 0 ? "(" : "(";
-                string hiBracket = "]";
-                histSeries.Points[i].AxisLabel =
-                    $"({xs[i]:F0}; {xs[i + 1]:F0}]";
+                histSeries.Points[i].AxisLabel = $"({xs[i]:F1}; {xs[i + 1]:F1}]";
             }
 
             chart1.Series.Add(histSeries);
 
-            // Настройка оси X: позиции совпадают с серединами столбцов
             area.AxisX.Minimum = 0.5;
             area.AxisX.Maximum = bins + 0.5;
             area.AxisX.Interval = 1;
 
-            // --- Теоретическая кривая нормального распределения ---
+            // --- Теоретическая кривая через вторичную ось X ---
             var curveSeries = new Series("Curve")
             {
                 ChartType = SeriesChartType.Line,
                 ChartArea = "main",
                 Color = System.Drawing.Color.Green,
                 BorderWidth = 3,
-                IsVisibleInLegend = false
+                IsVisibleInLegend = false,
+                XAxisType = AxisType.Secondary
             };
-            curveSeries.XAxisType = AxisType.Secondary;
 
-            // Вторичная ось X совпадает с реальными значениями
             area.AxisX2.Minimum = xs[0];
             area.AxisX2.Maximum = xs[bins];
             area.AxisX2.LabelStyle.Enabled = false;
@@ -258,7 +228,6 @@ namespace lab6_p2
             };
             if (df < 1) df = 1;
             if (df <= table.Length) return table[df - 1];
-            // Аппроксимация для больших df
             return df + 1.645 * Math.Sqrt(2.0 * df);
         }
 
