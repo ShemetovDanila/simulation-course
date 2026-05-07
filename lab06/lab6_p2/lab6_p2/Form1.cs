@@ -56,7 +56,7 @@ namespace lab6_p2
             return mean + sigma * z;
         }
 
-        // плотность нормального распределения
+        // плотность нормального распределения для отрисовки кривой
         private double NormalPDF(double x, double mean, double sigma)
         {
             return (1.0 / (sigma * Math.Sqrt(2.0 * Math.PI))) * Math.Exp(-Math.Pow(x - mean, 2.0) / (2.0 * sigma * sigma));
@@ -77,7 +77,7 @@ namespace lab6_p2
             return sign * y;
         }
 
-        // функция распределения нормального закона
+        // функция распределения нормального закона 
         private double NormalCDF(double x, double mean, double sigma)
         {
             return 0.5 * (1.0 + Erf((x - mean) / (sigma * Math.Sqrt(2.0))));
