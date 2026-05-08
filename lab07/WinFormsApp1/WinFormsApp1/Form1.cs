@@ -364,7 +364,9 @@ namespace WinFormsApp1
                 ? $"Модельное время: {currentTime:F4} дней"
                 : $"Событий: {eventCount}";
 
-            double total = currentTime > 0 ? currentTime : 1;
+            double total = timeInState[0] + timeInState[1] + timeInState[2];
+            if (total <= 0) total = 1;
+
             for (int i = 0; i < 3; i++)
             {
                 double emp = timeInState[i] / total;
@@ -380,21 +382,27 @@ namespace WinFormsApp1
 
         private void PanelPieChart_Paint(object sender, PaintEventArgs e)
         {
+            double t0 = timeInState[0], t1 = timeInState[1], t2 = timeInState[2];
+            double total = t0 + t1 + t2;
+            double[] snap = { t0, t1, t2 };
+
             Graphics g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             int pad = 20;
             var rect = new Rectangle(pad, pad, panelPieChart.Width - pad * 2, panelPieChart.Height - pad * 2);
-            double total = currentTime > 0 ? currentTime : 0;
 
-            if (total == 0 || currentTime < 0)
+            if (total <= 0)
             {
-                using var b = new SolidBrush(Color.Gainsboro);
-                g.FillEllipse(b, rect);
-                using var br = new SolidBrush(Color.Gray);
-                g.DrawString(currentTime < 0 ? "Ошибка!" : "Нет данных",
-                            new Font("Segoe UI", 10), br,
-                            rect.X + rect.Width / 2f - 40, rect.Y + rect.Height / 2f - 8);
+                using var bGray = new SolidBrush(Color.Gainsboro);
+                g.FillEllipse(bGray, rect);
+                using var sf0 = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString("Нет данных", new Font("Segoe UI", 10), new SolidBrush(Color.Gray),
+                             new RectangleF(rect.X, rect.Y, rect.Width, rect.Height), sf0);
                 return;
             }
 
@@ -402,7 +410,7 @@ namespace WinFormsApp1
 
             for (int i = 0; i < 3; i++)
             {
-                double f = timeInState[i] / total;
+                double f = snap[i] / total;
                 float sweep = (float)(f * 360.0);
                 if (sweep < 0.1f) { startAngle += sweep; continue; }
 
@@ -420,9 +428,14 @@ namespace WinFormsApp1
                         rect.X + rect.Width / 2f + r * MathF.Cos(rad),
                         rect.Y + rect.Height / 2f + r * MathF.Sin(rad));
 
-                    string label = $"{stateNames[i][0]}\n{f:P0}";
-                    using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(label, new Font("Segoe UI", 8, FontStyle.Bold), Brushes.White, cp, sf);
+                    using var sf = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString($"{stateNames[i][0]}\n{f:P0}",
+                                 new Font("Segoe UI", 8, FontStyle.Bold),
+                                 Brushes.White, cp, sf);
                 }
 
                 startAngle += sweep;
