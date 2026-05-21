@@ -135,7 +135,7 @@
             textBoxLambda.Name = "textBoxLambda";
             textBoxLambda.Size = new Size(125, 27);
             textBoxLambda.TabIndex = 8;
-            textBoxLambda.Text = "2";
+            textBoxLambda.Text = "0,5";
             textBoxLambda.TextChanged += textBoxLambda_TextChanged;
             // 
             // textBoxT
@@ -144,7 +144,7 @@
             textBoxT.Name = "textBoxT";
             textBoxT.Size = new Size(125, 27);
             textBoxT.TabIndex = 9;
-            textBoxT.Text = "1000";
+            textBoxT.Text = "20";
             textBoxT.TextChanged += textBoxT_TextChanged;
             // 
             // textBoxN

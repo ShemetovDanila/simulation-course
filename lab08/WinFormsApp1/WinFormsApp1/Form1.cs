@@ -65,8 +65,7 @@ namespace WinFormsApp1
             MultRandom rnd = new MultRandom(seed);
 
             //основной алгоритм
-            int maxEvents = 1000;
-            int[] freq = new int[maxEvents];
+            Dictionary<int, int> freq = new Dictionary<int, int>();
             int[] results = new int[N];
 
             for (int k = 0; k < N; k++)
@@ -82,22 +81,16 @@ namespace WinFormsApp1
                     double tau = -Math.Log(1.0 - u) / lambda;
                     t += tau;
 
-                    if (t <= T)
-                        eventsCount++;
-                    else
-                        break;
+                    if (t <= T) eventsCount++;
+                    else break;
                 }
 
                 results[k] = eventsCount;
 
-                if (eventsCount < maxEvents)
+                if (freq.ContainsKey(eventsCount))
                     freq[eventsCount]++;
-            }
-
-            double[] probabilities = new double[maxEvents];
-            for (int i = 0; i < maxEvents; i++)
-            {
-                probabilities[i] = (double)freq[i] / N;
+                else
+                    freq[eventsCount] = 1;
             }
 
             // среднее и дисперсия
@@ -105,48 +98,45 @@ namespace WinFormsApp1
 
             double variance = 0;
             for (int i = 0; i < N; i++)
-            {
                 variance += Math.Pow(results[i] - mean, 2);
-            }
             variance /= N;
-    
-            labelMean.Text = "Среднее: " + mean.ToString("F4") +
-                            "   (теор: " + (lambda * T).ToString("F4") + ")";
-            labelVariance.Text = "Дисперсия: " + variance.ToString("F4") +
-                                 "   (теор: " + (lambda * T).ToString("F4") + ")";
+
+            labelMean.Text = "Среднее:   " + mean.ToString("F4") + "   (теор: " + (lambda * T).ToString("F4") + ")";
+            labelVariance.Text = "Дисперсия: " + variance.ToString("F4") + "   (теор: " + (lambda * T).ToString("F4") + ")";
+
             // гистограмма
             chart1.Series.Clear();
             chart1.Titles.Clear();
+            chart1.ChartAreas.Clear();
 
-            Series series = new Series("Вероятность");
-            series.ChartType = SeriesChartType.Column;
-            series.Color = System.Drawing.Color.SteelBlue;
-            series.BorderColor = System.Drawing.Color.DarkSlateBlue;
-            series.BorderWidth = 1;
-
-            for (int i = 0; i < maxEvents; i++)
-            {
-                if (freq[i] > 0)
-                {
-                    DataPoint dp = new DataPoint(i, probabilities[i]);
-                    dp.ToolTip = $"k={i}, P={probabilities[i]:F4}";
-                    series.Points.Add(dp);
-                }
-            }
-
-            chart1.Series.Add(series);
-
-            ChartArea area = chart1.ChartAreas[0];
+            ChartArea area = new ChartArea("main");
             area.AxisX.Title = "Число запросов k";
             area.AxisY.Title = "Вероятность P(X = k)";
-            area.AxisX.TitleFont = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold);
-            area.AxisY.TitleFont = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold);
             area.AxisX.Interval = 1;
             area.AxisX.LabelStyle.Angle = -45;
             area.AxisY.Minimum = 0;
             area.AxisX.MajorGrid.LineColor = System.Drawing.Color.LightGray;
             area.AxisY.MajorGrid.LineColor = System.Drawing.Color.LightGray;
             area.BackColor = System.Drawing.Color.WhiteSmoke;
+            chart1.ChartAreas.Add(area);
+
+            Series series = new Series("Вероятность");
+            series.ChartType = SeriesChartType.Column;
+            series.ChartArea = "main";
+            series.Color = System.Drawing.Color.SteelBlue;
+            series.BorderColor = System.Drawing.Color.DarkSlateBlue;
+            series.BorderWidth = 1;
+
+            // сортируем ключи, чтобы столбцы шли по порядку
+            foreach (int key in freq.Keys.OrderBy(x => x))
+            {
+                double probability = (double)freq[key] / N; // нормирование!!!
+                DataPoint dp = new DataPoint(key, probability);
+                dp.ToolTip = $"k={key}, P={probability:F4}";
+                series.Points.Add(dp);
+            }
+
+            chart1.Series.Add(series);
 
             chart1.Titles.Add(new Title(
                 $"Пуассоновский поток: λ={lambda}, T={T}, N={N}",
