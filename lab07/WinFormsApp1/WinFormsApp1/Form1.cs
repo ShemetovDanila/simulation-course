@@ -177,7 +177,7 @@ namespace WinFormsApp1
             double qExit = -Q[stateIdx, stateIdx];
 
             double u = rng.Next();
-            tau = -Math.Log(1.0 - u) / qExit;
+            tau = Math.Log(1.0 - u) / qExit;
 
             double r = rng.Next() * qExit, cum = 0;
             for (int j = 0; j < 3; j++)
