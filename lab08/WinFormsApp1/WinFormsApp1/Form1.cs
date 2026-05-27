@@ -76,7 +76,6 @@ namespace WinFormsApp1
                 while (true)
                 {
                     double u = rnd.Next();
-                    if (u >= 1.0) u = 0.9999999;
 
                     double tau = -Math.Log(1.0 - u) / lambda;
                     t += tau;
