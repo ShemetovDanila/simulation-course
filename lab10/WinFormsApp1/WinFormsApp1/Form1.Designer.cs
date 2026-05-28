@@ -88,7 +88,7 @@
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(325, 27);
             textBox1.TabIndex = 3;
-            textBox1.Text = "0.5";
+            textBox1.Text = "15";
             // 
             // textBox2
             // 
@@ -96,7 +96,7 @@
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(325, 27);
             textBox2.TabIndex = 5;
-            textBox2.Text = "2";
+            textBox2.Text = "5";
             textBox2.TextChanged += textBox2_TextChanged;
             // 
             // label2
@@ -157,7 +157,7 @@
             textBox5.Name = "textBox5";
             textBox5.Size = new Size(325, 27);
             textBox5.TabIndex = 12;
-            textBox5.Text = "15";
+            textBox5.Text = "5";
             // 
             // label5
             // 

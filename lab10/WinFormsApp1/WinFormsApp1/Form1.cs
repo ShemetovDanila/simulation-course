@@ -107,6 +107,7 @@ namespace WinFormsApp1
                     t = t + tau;
                     delta = delta - tau;
                     tau = GenExp(lambda);
+                    processedEvents++;
                 }
                 else
                 {
@@ -141,8 +142,6 @@ namespace WinFormsApp1
                 {
                     delta = double.PositiveInfinity;
                 }
-
-                processedEvents++;
             }
 
             double rho = lambda / mu;
@@ -174,8 +173,6 @@ namespace WinFormsApp1
                 $"     Эмпирика: {avgQueueLength:F4}\r\n\r\n" +
                 $"  4. Вероятность отказа (стат.):\r\n" +
                 $"     P_отк = rejected/N = {p_rej_stat:F4}\r\n\r\n" +
-                $"  5. Текущее состояние в конце цикла:\r\n" +
-                $"     x = {x} (занято) | y = {y} (в очереди)\r\n" +
                 "═══════════════════════════════════════";
 
             DrawChart(probabilities, N);
@@ -235,7 +232,7 @@ namespace WinFormsApp1
     public class MultRandom
     {
         private long x_mult;
-        private const long c = (long)int.MaxValue / (2 * 10) + 3;
+        private const long c = (long)int.MaxValue / (2 * 1000) + 3;
         private const long m = (long)int.MaxValue;
 
         public MultRandom(long seed)
